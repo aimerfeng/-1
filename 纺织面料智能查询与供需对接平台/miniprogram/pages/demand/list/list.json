@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "需求列表",
+  "navigationBarTitleText": "\u9700\u6c42\u5217\u8868",
   "enablePullDownRefresh": true,
   "usingComponents": {
     "loading-skeleton": "/components/loading-skeleton/loading-skeleton",
