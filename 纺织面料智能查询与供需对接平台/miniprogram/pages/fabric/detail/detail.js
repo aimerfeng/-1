@@ -122,7 +122,7 @@ Page({
       return;
     }
 
-    request.get('/favorites', {}, { showError: false }).then(function (res) {
+    request.get('/fabrics/favorites', { page: 1, per_page: 100 }, { showError: false }).then(function (res) {
       var favorites = res.items || res || [];
       var isFavorited = false;
       for (var i = 0; i < favorites.length; i++) {

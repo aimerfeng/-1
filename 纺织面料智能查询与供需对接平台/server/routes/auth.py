@@ -79,6 +79,26 @@ def certification_required(fn):
 auth_bp = Blueprint('auth', __name__)
 
 
+@auth_bp.route('/send-code', methods=['POST'])
+def send_code():
+    """Send SMS verification code (development stub).
+
+    The current project does not integrate a real SMS provider yet.
+    This endpoint validates the phone number and returns success so the
+    mini program registration flow can continue in development/testing.
+    """
+    data = request.get_json(silent=True) or {}
+    phone = data.get('phone', '')
+
+    if not validate_phone(phone):
+        return jsonify({'code': 400, 'message': '\u624b\u673a\u53f7\u683c\u5f0f\u4e0d\u6b63\u786e'}), 400
+
+    return jsonify({
+        'message': '\u9a8c\u8bc1\u7801\u5df2\u53d1\u9001\uff08\u5f00\u53d1\u6a21\u5f0f\uff09',
+        'expires_in': 300,
+    }), 200
+
+
 @auth_bp.route('/wx-login', methods=['POST'])
 def wx_login():
     """WeChat mini-program login."""

@@ -252,12 +252,22 @@ Page({
     item.relativeTime = util.getRelativeTime(item.last_message_at);
     // 消息预览截断
     item.previewText = util.truncateText(item.last_message_preview || '', 30);
-    // 对方名称
-    item.counterpartyName = item.counterparty_company_name || item.counterparty_name || '未知用户';
+    // 对方名称（后端 buyer/supplier 返回字符串，admin 返回对象）
+    if (typeof item.counterparty === 'string') {
+      item.counterpartyName = item.counterparty;
+    } else if (item.counterparty && typeof item.counterparty === 'object') {
+      var buyerName = item.counterparty.buyer_company_name || '';
+      var supplierName = item.counterparty.supplier_company_name || '';
+      item.counterpartyName = (buyerName && supplierName)
+        ? (buyerName + ' -> ' + supplierName)
+        : (buyerName || supplierName || '未知用户');
+    } else {
+      item.counterpartyName = item.counterparty_company_name || item.counterparty_name || '未知用户';
+    }
     // 需求标题
     item.demandTitle = item.demand_title || '未知需求';
     // 未读数量
-    item.unreadCount = item.unread_count || 0;
+    item.unreadCount = item.unread_count || item.unreadCount || 0;
 
     return item;
   },
@@ -405,7 +415,7 @@ Page({
     var that = this;
 
     request.get('/messages/unread-count', {}, { showError: false }).then(function (res) {
-      var count = res.unread_count || 0;
+      var count = res.count || res.unread_count || 0;
       that.setData({ unreadCount: count });
 
       // 更新 tabBar 角标

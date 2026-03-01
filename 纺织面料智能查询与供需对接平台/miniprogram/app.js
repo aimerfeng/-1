@@ -126,12 +126,26 @@ App({
       return;
     }
 
-    request.get('/messages/unread-count', {}, { showError: false }).then(function (res) {
-      var count = res.unread_count || 0;
-      that.globalData.unreadCount = count;
-      that._updateTabBarBadge(count);
+    // Keep the app-level badge consistent with message center:
+    // total unread = conversation unread + notification unread.
+    Promise.all([
+      request.get('/conversations/unread-count', {}, { showError: false }).catch(function () {
+        return { count: 0 };
+      }),
+      request.get('/messages/unread-count', {}, { showError: false }).catch(function () {
+        return { count: 0 };
+      })
+    ]).then(function (results) {
+      var convRes = results[0] || {};
+      var msgRes = results[1] || {};
+      var convCount = convRes.count || convRes.unread_count || 0;
+      var msgCount = msgRes.count || msgRes.unread_count || 0;
+      var total = convCount + msgCount;
+
+      that.globalData.unreadCount = total;
+      that._updateTabBarBadge(total);
     }).catch(function () {
-      // Silently fail – do not disrupt the user experience
+      // Silently fail to avoid disrupting UX.
     });
   },
 
@@ -179,7 +193,7 @@ App({
 
     // Platform configuration
     platform: {
-      name: '纺织面料平台',
+      name: '\u7eba\u7ec7\u9762\u6599\u5e73\u53f0',
       version: '1.0.0'
     }
   }
