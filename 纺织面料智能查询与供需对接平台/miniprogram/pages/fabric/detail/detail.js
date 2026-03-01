@@ -211,8 +211,10 @@ Page({
       return;
     }
     var fabricId = this.data.fabricId;
+    var fabricName = (this.data.fabric && this.data.fabric.name) || '';
     wx.navigateTo({
-      url: '/pages/sample/sample?fabric_id=' + fabricId
+      url: '/pages/sample/sample?fabric_id=' + fabricId +
+        (fabricName ? '&fabric_name=' + encodeURIComponent(fabricName) : '')
     });
   },
 

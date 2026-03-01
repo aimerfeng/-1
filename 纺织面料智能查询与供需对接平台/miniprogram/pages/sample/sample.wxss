@@ -42,6 +42,119 @@
 }
 
 /* ============================================================
+   买家申请样品面板
+   ============================================================ */
+
+.create-panel {
+  margin: var(--spacing-md);
+  padding: var(--spacing-lg);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-card);
+  box-shadow: var(--shadow-sm);
+}
+
+.create-panel__header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+}
+
+.create-panel__title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.create-panel__close {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-round);
+  background-color: var(--color-bg-page);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.create-panel__row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.create-panel__row--column {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.create-panel__label {
+  width: 140rpx;
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.create-panel__value {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.create-panel__input {
+  flex: 1;
+  height: 72rpx;
+  line-height: 72rpx;
+  padding: 0 var(--spacing-md);
+  border: 2rpx solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-page);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+}
+
+.create-panel__textarea {
+  width: 100%;
+  min-height: 140rpx;
+  margin-top: var(--spacing-xs);
+  padding: var(--spacing-md);
+  border: 2rpx solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-bg-page);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  box-sizing: border-box;
+}
+
+.create-panel__submit {
+  margin-top: var(--spacing-sm);
+  height: 80rpx;
+  line-height: 80rpx;
+  border: none;
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+}
+
+.create-panel__submit[disabled] {
+  opacity: 0.7;
+}
+
+.create-panel-reopen {
+  margin: var(--spacing-md) var(--spacing-md) 0;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border-radius: var(--radius-round);
+  background-color: var(--color-primary-bg);
+}
+
+.create-panel-reopen__text {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+}
+
+/* ============================================================
    样品卡片列表
    ============================================================ */
 

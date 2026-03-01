@@ -18,6 +18,55 @@
   </view>
 
   <!-- ============================================================
+       采购方申请样品面板（从面料详情页进入时展示）
+       ============================================================ -->
+  <view class="create-panel fade-in" wx:if="{{role === 'buyer' && showCreatePanel}}">
+    <view class="create-panel__header">
+      <text class="create-panel__title">申请样品</text>
+      <view class="create-panel__close" bindtap="onCloseCreatePanel">
+        <text>收起</text>
+      </view>
+    </view>
+
+    <view class="create-panel__row">
+      <text class="create-panel__label">面料</text>
+      <text class="create-panel__value">{{createFabricName || ('面料#' + createFabricId)}}</text>
+    </view>
+
+    <view class="create-panel__row">
+      <text class="create-panel__label">数量</text>
+      <input class="create-panel__input"
+             type="number"
+             value="{{createQuantity}}"
+             bindinput="onCreateQuantityInput"
+             placeholder="请输入样品数量" />
+    </view>
+
+    <view class="create-panel__row create-panel__row--column">
+      <text class="create-panel__label">收货地址</text>
+      <textarea class="create-panel__textarea"
+                value="{{createAddress}}"
+                bindinput="onCreateAddressInput"
+                placeholder="请输入收货地址"
+                maxlength="200"
+                auto-height />
+    </view>
+
+    <button class="create-panel__submit"
+            bindtap="submitCreateSample"
+            loading="{{createSubmitting}}"
+            disabled="{{createSubmitting}}">
+      {{createSubmitting ? '提交中...' : '提交申请'}}
+    </button>
+  </view>
+
+  <view class="create-panel-reopen"
+        wx:if="{{role === 'buyer' && createFabricId && !showCreatePanel}}"
+        bindtap="onOpenCreatePanel">
+    <text class="create-panel-reopen__text">继续申请面料样品</text>
+  </view>
+
+  <!-- ============================================================
        骨架屏（首次加载时展示）
        ============================================================ -->
   <loading-skeleton wx:if="{{loading}}" mode="list" />

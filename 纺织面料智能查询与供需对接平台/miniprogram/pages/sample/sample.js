@@ -26,13 +26,26 @@ Page({
     /** 总记录数 */
     total: 0,
 
+    /** 买家创建样品申请面板状态 */
+    showCreatePanel: false,
+    /** 待申请的面料 ID（从面料详情页跳转携带） */
+    createFabricId: null,
+    /** 待申请的面料名称（可选） */
+    createFabricName: '',
+    /** 申请数量 */
+    createQuantity: '1',
+    /** 收货地址 */
+    createAddress: '',
+    /** 提交中状态 */
+    createSubmitting: false,
+
     /** 状态中文映射 */
     statusTextMap: {
-      'pending': '待审核',
-      'approved': '已通过',
-      'rejected': '已拒绝',
-      'shipping': '运输中',
-      'received': '已签收'
+      pending: '待审核',
+      approved: '已通过',
+      rejected: '已拒绝',
+      shipping: '运输中',
+      received: '已签收'
     },
 
     /** 供应商审核弹窗是否显示 */
@@ -54,14 +67,47 @@ Page({
     logisticsSample: null
   },
 
-  onLoad: function () {
+  onLoad: function (options) {
     var role = auth.getUserRole();
-    this.setData({ role: role || 'buyer' });
+    var createPatch = this._parseCreateOptions(role, options);
+
+    this.setData(Object.assign({
+      role: role || 'buyer'
+    }, createPatch));
+
+    if (createPatch.showCreatePanel && createPatch.createFabricId && !createPatch.createFabricName) {
+      this._loadCreateFabricBrief(createPatch.createFabricId);
+    }
+
     this._loadSamples(true);
   },
 
   onShow: function () {
     // 页面显示时可刷新数据
+  },
+
+  /**
+   * 解析从面料详情页跳转时携带的创建参数
+   */
+  _parseCreateOptions: function (role, options) {
+    var patch = {};
+    if (role !== 'buyer' || !options) return patch;
+
+    var fabricId = parseInt(options.fabric_id, 10);
+    if (!isNaN(fabricId) && fabricId > 0) {
+      patch.showCreatePanel = true;
+      patch.createFabricId = fabricId;
+    }
+
+    if (options.fabric_name) {
+      try {
+        patch.createFabricName = decodeURIComponent(options.fabric_name);
+      } catch (e) {
+        patch.createFabricName = options.fabric_name;
+      }
+    }
+
+    return patch;
   },
 
   /**
@@ -159,15 +205,93 @@ Page({
   },
 
   /**
+   * 补充加载面料简要信息（名称），失败不阻断流程
+   */
+  _loadCreateFabricBrief: function (fabricId) {
+    var that = this;
+    request.get('/fabrics/' + fabricId, {}, { showError: false }).then(function (res) {
+      that.setData({
+        createFabricName: res.name || ''
+      });
+    }).catch(function () {
+      // 静默失败，保留面料 ID 作为兜底展示
+    });
+  },
+
+  onCreateQuantityInput: function (e) {
+    this.setData({ createQuantity: e.detail.value });
+  },
+
+  onCreateAddressInput: function (e) {
+    this.setData({ createAddress: e.detail.value });
+  },
+
+  onOpenCreatePanel: function () {
+    if (!this.data.createFabricId) return;
+    this.setData({ showCreatePanel: true });
+  },
+
+  onCloseCreatePanel: function () {
+    this.setData({ showCreatePanel: false });
+  },
+
+  /**
+   * 买家提交样品申请
+   */
+  submitCreateSample: function () {
+    var that = this;
+    if (this.data.createSubmitting) return;
+
+    var fabricId = this.data.createFabricId;
+    var quantity = parseInt(this.data.createQuantity, 10);
+    var address = (this.data.createAddress || '').trim();
+
+    if (!fabricId) {
+      wx.showToast({ title: '面料ID不存在', icon: 'none' });
+      return;
+    }
+    if (!quantity || quantity <= 0) {
+      wx.showToast({ title: '请输入正整数数量', icon: 'none' });
+      return;
+    }
+    if (!address) {
+      wx.showToast({ title: '请输入收货地址', icon: 'none' });
+      return;
+    }
+
+    this.setData({ createSubmitting: true });
+
+    request.post('/samples', {
+      fabric_id: fabricId,
+      quantity: quantity,
+      address: address
+    }, {
+      showLoading: true,
+      loadingText: '提交中...'
+    }).then(function () {
+      wx.showToast({ title: '样品申请已提交', icon: 'success' });
+      that.setData({
+        createSubmitting: false,
+        createQuantity: '1',
+        createAddress: '',
+        showCreatePanel: false
+      });
+      that._loadSamples(true);
+    }).catch(function () {
+      that.setData({ createSubmitting: false });
+    });
+  },
+
+  /**
    * 获取状态对应的自定义 type（覆盖 status-tag 默认映射）
    */
   _getStatusType: function (status) {
     var map = {
-      'pending': 'warning',
-      'approved': 'info',
-      'rejected': 'danger',
-      'shipping': 'primary',
-      'received': 'success'
+      pending: 'warning',
+      approved: 'info',
+      rejected: 'danger',
+      shipping: 'primary',
+      received: 'success'
     };
     return map[status] || 'info';
   },
@@ -299,8 +423,14 @@ Page({
     });
 
     request.get('/samples/' + sample.id + '/logistics').then(function (res) {
+      var logistics = res && res.logistics ? res.logistics : null;
+      // 兼容后端仅返回 details 的历史数据结构
+      if (logistics && !logistics.traces && Array.isArray(logistics.details)) {
+        logistics.traces = logistics.details;
+      }
+
       that.setData({
-        logisticsData: res,
+        logisticsData: Object.assign({}, res, { logistics: logistics }),
         logisticsLoading: false
       });
     }).catch(function () {

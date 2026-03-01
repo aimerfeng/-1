@@ -466,6 +466,43 @@ class TestGetSampleLogistics:
         assert data['sample_id'] == sample_id
         assert data['logistics_no'] is not None
         assert 'logistics' in data
+        assert isinstance(data['logistics'], dict)
+        if isinstance(data['logistics'].get('details'), list):
+            assert data['logistics'].get('traces') == data['logistics']['details']
+
+    def test_get_logistics_normalizes_details_to_traces(
+        self, client, buyer_token, supplier_token, sample_fabric, monkeypatch
+    ):
+        """Response should include logistics.traces even when only details exist."""
+        b_token, _ = buyer_token
+        sample_id = self._create_and_approve_sample(
+            client, buyer_token, supplier_token, sample_fabric
+        )
+
+        # Keep the test deterministic: avoid additional random sync mutation.
+        monkeypatch.setattr('server.routes.sample.sync_logistics_status', lambda _sample_id: True)
+
+        sample = _db.session.get(Sample, sample_id)
+        sample.logistics_info = {
+            'status': 'in_transit',
+            'details': [
+                {
+                    'time': '2026-01-01 12:00:00',
+                    'status': 'in_transit',
+                    'description': '运输中',
+                }
+            ],
+        }
+        _db.session.commit()
+
+        resp = client.get(
+            f'/api/samples/{sample_id}/logistics',
+            headers=_auth_header(b_token),
+        )
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert data['logistics']['details']
+        assert data['logistics']['traces'] == data['logistics']['details']
 
     def test_get_logistics_supplier_can_view(self, client, buyer_token, supplier_token, sample_fabric):
         """Supplier should also be able to view logistics."""

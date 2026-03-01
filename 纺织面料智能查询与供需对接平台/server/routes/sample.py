@@ -18,7 +18,7 @@ from server.models.sample import Sample
 from server.models.fabric import Fabric
 from server.models.user import User
 from server.routes.auth import role_required
-from server.services.logistics import create_logistics, query_logistics
+from server.services.logistics import create_logistics, query_logistics, sync_logistics_status
 from server.services.notification import send_notification
 
 sample_bp = Blueprint('sample', __name__)
@@ -287,6 +287,11 @@ def get_sample_logistics(sample_id):
             'message': '无权查看此样品物流信息',
         }), 403
 
+    # Trigger a best-effort sync before returning logistics details so the
+    # buyer can see the latest status without waiting for a background job.
+    sync_logistics_status(sample.id)
+    db.session.refresh(sample)
+
     if not sample.logistics_no:
         return jsonify({
             'code': 404,
@@ -294,8 +299,14 @@ def get_sample_logistics(sample_id):
             'logistics': None,
         }), 404
 
-    # Query latest logistics status
-    logistics_data = query_logistics(sample.logistics_no)
+    # Prefer already-synced DB data, fallback to direct query if unavailable.
+    logistics_data = sample.logistics_info or query_logistics(sample.logistics_no)
+
+    # Normalize tracking list shape for frontend timeline rendering.
+    if isinstance(logistics_data, dict):
+        details = logistics_data.get('details')
+        if logistics_data.get('traces') is None and isinstance(details, list):
+            logistics_data['traces'] = details
 
     return jsonify({
         'sample_id': sample.id,
