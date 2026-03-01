@@ -348,8 +348,8 @@ class TestSyncLogisticsStatus:
             assert result is True
             mock_notify.assert_not_called()
 
-    def test_delivered_updates_sample_status(self, app_context, db):
-        """Should update sample status to 'received' when delivered."""
+    def test_delivered_does_not_auto_update_sample_status(self, app_context, db):
+        """Delivered logistics should not auto-mark sample as received."""
         supplier = _create_supplier(db)
         buyer = _create_buyer(db)
         fabric = _create_fabric(db, supplier.id)
@@ -376,7 +376,7 @@ class TestSyncLogisticsStatus:
             result = sync_logistics_status(sample.id)
 
             assert result is True
-            assert sample.status == "received"
+            assert sample.status == "shipping"
             assert sample.logistics_info["status"] == "delivered"
 
     def test_api_failure_marks_retry(self, app_context, db):

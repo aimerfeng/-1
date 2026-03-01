@@ -27,7 +27,7 @@ var auth = require('./auth');
  */
 function request(options) {
   var app = getApp();
-  var baseUrl = (app && app.globalData && app.globalData.baseUrl) || 'http://localhost:5000/api';
+  var baseUrl = (app && app.globalData && app.globalData.baseUrl) || 'http://127.0.0.1:5000/api';
   var token = auth.getToken();
 
   // 默认配置

@@ -2,6 +2,7 @@
 // Global application logic and state management
 
 var request = require('./utils/request');
+var envConfig = require('./config/env');
 
 App({
   /**
@@ -9,9 +10,23 @@ App({
    * Checks login status, loads cached user info, and starts unread badge polling
    */
   onLaunch: function () {
+    this._initEnvironment();
     this.checkLoginStatus();
     // Start polling unread message count for tabBar badge
     this._startUnreadBadgePolling();
+  },
+
+  /**
+   * Resolve runtime env and API base URL.
+   */
+  _initEnvironment: function () {
+    var runtimeEnv = envConfig.getRuntimeEnv();
+    var baseUrl = envConfig.getBaseUrl();
+
+    this.globalData.runtimeEnv = runtimeEnv;
+    this.globalData.baseUrl = baseUrl;
+
+    console.log('[app] env:', runtimeEnv, 'baseUrl:', baseUrl);
   },
 
   /**
@@ -188,8 +203,9 @@ App({
     // Unread message count (kept in sync by polling)
     unreadCount: 0,
 
-    // API base URL for backend requests
-    baseUrl: 'http://localhost:5000/api',
+    // Runtime environment and API base URL
+    runtimeEnv: 'develop',
+    baseUrl: 'http://127.0.0.1:5000/api',
 
     // Platform configuration
     platform: {

@@ -248,6 +248,11 @@ def sync_logistics_status(sample_id):
     notification to the buyer. If the API call fails, marks
     the sample for retry on the next sync.
 
+    Note:
+        Logistics sync updates tracking information only. The
+        sample status transition shipping -> received is handled
+        explicitly by the buyer confirmation endpoint.
+
     Args:
         sample_id: The ID of the sample to sync.
 
@@ -295,10 +300,6 @@ def sync_logistics_status(sample_id):
                 old_status,
                 new_status,
             )
-
-            # Update sample status if delivered
-            if new_status == "delivered":
-                sample.status = "received"
 
             db.session.commit()
 

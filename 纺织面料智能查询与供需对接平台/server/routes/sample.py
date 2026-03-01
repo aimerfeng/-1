@@ -7,6 +7,7 @@ Endpoints:
     POST   /api/samples              - Create a sample request (buyer only)
     GET    /api/samples              - List samples (role-based filtering)
     PUT    /api/samples/<id>/review  - Review sample request (supplier only)
+    PUT    /api/samples/<id>/receive - Buyer confirms sample received
     GET    /api/samples/<id>/logistics - Query sample logistics status
 """
 
@@ -253,6 +254,59 @@ def review_sample(sample_id):
             ref_id=sample.id,
             ref_type='sample',
         )
+
+    return jsonify(sample.to_dict()), 200
+
+
+@sample_bp.route('/<int:sample_id>/receive', methods=['PUT'])
+@jwt_required()
+@role_required('buyer')
+def receive_sample(sample_id):
+    """Buyer confirms a shipped sample has been received.
+
+    This endpoint is the only place that transitions a sample from
+    shipping -> received. Logistics sync updates tracking details only.
+
+    Args:
+        sample_id: The sample's database ID.
+
+    Returns:
+        200: Updated sample data
+        400: Sample not in shipping status
+        403: Not the sample's buyer
+        404: Sample not found
+    """
+    sample = db.session.get(Sample, sample_id)
+    if sample is None:
+        return jsonify({
+            'code': 404,
+            'message': 'Sample not found',
+        }), 404
+
+    buyer_id = int(get_jwt_identity())
+    if sample.buyer_id != buyer_id:
+        return jsonify({
+            'code': 403,
+            'message': 'Only the sample buyer can confirm receipt',
+        }), 403
+
+    if sample.status != 'shipping':
+        return jsonify({
+            'code': 400,
+            'message': 'Only shipping samples can be received',
+        }), 400
+
+    sample.status = 'received'
+    db.session.commit()
+
+    send_notification(
+        user_id=sample.supplier_id,
+        notification_type='logistics',
+        title='Sample received',
+        content=f'Sample request #{sample.id} has been confirmed as received.',
+        ref_id=sample.id,
+        ref_type='sample',
+    )
 
     return jsonify(sample.to_dict()), 200
 

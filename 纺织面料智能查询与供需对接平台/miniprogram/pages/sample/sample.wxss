@@ -255,6 +255,10 @@
   transition: all 0.2s ease;
 }
 
+.sample-card__action-btn + .sample-card__action-btn {
+  margin-left: var(--spacing-xs);
+}
+
 .sample-card__action-btn--primary {
   background-color: var(--color-primary);
   color: var(--color-text-inverse);
@@ -262,6 +266,17 @@
 
 .sample-card__action-btn--primary:active {
   background-color: var(--color-primary-dark);
+  transform: scale(0.96);
+}
+
+.sample-card__action-btn--secondary {
+  background-color: var(--color-bg-page);
+  color: var(--color-text-secondary);
+  border: 2rpx solid var(--color-border);
+}
+
+.sample-card__action-btn--secondary:active {
+  background-color: var(--color-divider);
   transform: scale(0.96);
 }
 

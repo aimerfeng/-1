@@ -430,6 +430,132 @@ class TestReviewSample:
         assert data['status'] in ('approved', 'shipping')
 
 
+class TestReceiveSample:
+    """Tests for PUT /api/samples/<id>/receive."""
+
+    def _create_sample(self, client, buyer_token, fabric):
+        token, _ = buyer_token
+        resp = client.post('/api/samples', json={
+            'fabric_id': fabric.id,
+            'quantity': 3,
+            'address': 'Test Address',
+        }, headers=_auth_header(token))
+        return resp.get_json()
+
+    def _create_and_approve_sample(self, client, buyer_token, supplier_token, fabric):
+        s_token, _ = supplier_token
+        sample_data = self._create_sample(client, buyer_token, fabric)
+        sample_id = sample_data['id']
+
+        client.put(f'/api/samples/{sample_id}/review', json={
+            'status': 'approved',
+        }, headers=_auth_header(s_token))
+        return sample_id
+
+    def test_buyer_receive_sample_success(self, client, buyer_token, supplier_token, sample_fabric):
+        b_token, _ = buyer_token
+        sample_id = self._create_and_approve_sample(
+            client, buyer_token, supplier_token, sample_fabric
+        )
+
+        resp = client.put(
+            f'/api/samples/{sample_id}/receive',
+            json={},
+            headers=_auth_header(b_token),
+        )
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert data['status'] == 'received'
+
+    def test_receive_sample_wrong_buyer_forbidden(
+        self, client, buyer_token, another_buyer_token, supplier_token, sample_fabric
+    ):
+        other_b_token, _ = another_buyer_token
+        sample_id = self._create_and_approve_sample(
+            client, buyer_token, supplier_token, sample_fabric
+        )
+
+        resp = client.put(
+            f'/api/samples/{sample_id}/receive',
+            json={},
+            headers=_auth_header(other_b_token),
+        )
+        assert resp.status_code == 403
+
+    def test_receive_sample_supplier_forbidden(self, client, buyer_token, supplier_token, sample_fabric):
+        s_token, _ = supplier_token
+        sample_id = self._create_and_approve_sample(
+            client, buyer_token, supplier_token, sample_fabric
+        )
+
+        resp = client.put(
+            f'/api/samples/{sample_id}/receive',
+            json={},
+            headers=_auth_header(s_token),
+        )
+        assert resp.status_code == 403
+
+    def test_receive_sample_pending_status_returns_400(self, client, buyer_token, sample_fabric):
+        b_token, _ = buyer_token
+        sample = self._create_sample(client, buyer_token, sample_fabric)
+
+        resp = client.put(
+            f"/api/samples/{sample['id']}/receive",
+            json={},
+            headers=_auth_header(b_token),
+        )
+        assert resp.status_code == 400
+
+    def test_receive_sample_rejected_status_returns_400(self, client, buyer_token, supplier_token, sample_fabric):
+        b_token, _ = buyer_token
+        s_token, _ = supplier_token
+        sample = self._create_sample(client, buyer_token, sample_fabric)
+
+        client.put(f"/api/samples/{sample['id']}/review", json={
+            'status': 'rejected',
+            'reject_reason': 'Out of stock',
+        }, headers=_auth_header(s_token))
+
+        resp = client.put(
+            f"/api/samples/{sample['id']}/receive",
+            json={},
+            headers=_auth_header(b_token),
+        )
+        assert resp.status_code == 400
+
+    def test_receive_sample_received_status_returns_400(self, client, buyer_token, supplier_token, sample_fabric):
+        b_token, _ = buyer_token
+        sample_id = self._create_and_approve_sample(
+            client, buyer_token, supplier_token, sample_fabric
+        )
+        first_resp = client.put(
+            f'/api/samples/{sample_id}/receive',
+            json={},
+            headers=_auth_header(b_token),
+        )
+        assert first_resp.status_code == 200
+
+        second_resp = client.put(
+            f'/api/samples/{sample_id}/receive',
+            json={},
+            headers=_auth_header(b_token),
+        )
+        assert second_resp.status_code == 400
+
+    def test_receive_sample_not_found(self, client, buyer_token):
+        b_token, _ = buyer_token
+        resp = client.put(
+            '/api/samples/99999/receive',
+            json={},
+            headers=_auth_header(b_token),
+        )
+        assert resp.status_code == 404
+
+    def test_receive_sample_no_auth(self, client):
+        resp = client.put('/api/samples/1/receive', json={})
+        assert resp.status_code == 401
+
+
 class TestGetSampleLogistics:
     """Tests for GET /api/samples/<id>/logistics."""
 
@@ -503,6 +629,42 @@ class TestGetSampleLogistics:
         data = resp.get_json()
         assert data['logistics']['details']
         assert data['logistics']['traces'] == data['logistics']['details']
+
+    def test_delivered_tracking_does_not_auto_receive_sample(
+        self, client, buyer_token, supplier_token, sample_fabric, monkeypatch
+    ):
+        """Delivered tracking info should not auto-transition sample to received."""
+        b_token, _ = buyer_token
+        sample_id = self._create_and_approve_sample(
+            client, buyer_token, supplier_token, sample_fabric
+        )
+
+        def _fake_sync(_sample_id):
+            sample = _db.session.get(Sample, _sample_id)
+            sample.logistics_info = {
+                'status': 'delivered',
+                'details': [
+                    {
+                        'time': '2026-01-01 12:00:00',
+                        'status': 'delivered',
+                        'description': 'Delivered',
+                    }
+                ],
+                'retry_pending': False,
+            }
+            _db.session.commit()
+            return True
+
+        monkeypatch.setattr('server.routes.sample.sync_logistics_status', _fake_sync)
+
+        resp = client.get(
+            f'/api/samples/{sample_id}/logistics',
+            headers=_auth_header(b_token),
+        )
+        assert resp.status_code == 200
+
+        sample = _db.session.get(Sample, sample_id)
+        assert sample.status == 'shipping'
 
     def test_get_logistics_supplier_can_view(self, client, buyer_token, supplier_token, sample_fabric):
         """Supplier should also be able to view logistics."""

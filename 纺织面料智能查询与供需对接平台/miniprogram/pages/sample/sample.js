@@ -38,6 +38,7 @@ Page({
     createAddress: '',
     /** 提交中状态 */
     createSubmitting: false,
+    receivingSampleId: null,
 
     /** 状态中文映射 */
     statusTextMap: {
@@ -408,8 +409,27 @@ Page({
   // ============================================================
 
   /**
-   * 查看物流详情
+   * 买家确认签收
    */
+  onConfirmReceiveTap: function (e) {
+    var that = this;
+    var sampleId = e.currentTarget.dataset.sampleId;
+    if (!sampleId || this.data.receivingSampleId) return;
+
+    this.setData({ receivingSampleId: sampleId });
+
+    request.put('/samples/' + sampleId + '/receive', {}, {
+      showLoading: true,
+      loadingText: '确认签收中...'
+    }).then(function () {
+      wx.showToast({ title: '已确认签收', icon: 'success' });
+      that.setData({ receivingSampleId: null });
+      that._loadSamples(true);
+    }).catch(function () {
+      that.setData({ receivingSampleId: null });
+    });
+  },
+
   onLogisticsTap: function (e) {
     var that = this;
     var sample = e.currentTarget.dataset.sample;

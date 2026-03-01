@@ -115,6 +115,12 @@
       <view class="sample-card__footer">
         <text class="sample-card__time">{{item.created_at}}</text>
         <view class="sample-card__actions">
+          <view class="sample-card__action-btn sample-card__action-btn--secondary"
+                wx:if="{{item.status === 'shipping'}}"
+                data-sample-id="{{item.id}}"
+                bindtap="onConfirmReceiveTap">
+            <text>{{receivingSampleId === item.id ? '确认中...' : '确认签收'}}</text>
+          </view>
           <!-- 运输中/已签收状态可查看物流 -->
           <view class="sample-card__action-btn sample-card__action-btn--primary"
                 wx:if="{{item.status === 'shipping' || item.status === 'received'}}"
