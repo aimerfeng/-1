@@ -1,0 +1,404 @@
+<!--
+  pages/admin/admin.wxml - 管理员审核页面
+  数据统计概览、用户审核、订单监控、会话监控
+  需求: 2.4, 2.6, 9.1, 9.2, 9.3
+-->
+
+<view class="page-container page-fade-in">
+
+  <!-- ============================================================
+       骨架屏（首次加载时展示）
+       ============================================================ -->
+  <view wx:if="{{loading}}" class="skeleton-wrapper">
+    <view class="skeleton-stats">
+      <view class="skeleton-stat-item" wx:for="{{4}}" wx:key="*this">
+        <view class="skeleton-stat-value skeleton-animate"></view>
+        <view class="skeleton-stat-label skeleton-animate"></view>
+      </view>
+    </view>
+    <view class="skeleton-tabs">
+      <view class="skeleton-tab skeleton-animate" wx:for="{{3}}" wx:key="*this"></view>
+    </view>
+    <view class="skeleton-list">
+      <view class="skeleton-card" wx:for="{{4}}" wx:key="*this">
+        <view class="skeleton-card-row skeleton-animate"></view>
+        <view class="skeleton-card-row skeleton-card-row--short skeleton-animate"></view>
+        <view class="skeleton-card-row skeleton-card-row--shorter skeleton-animate"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       页面内容
+       ============================================================ -->
+  <block wx:else>
+
+    <!-- 数据统计概览 -->
+    <view class="stats-section slide-up-delay-1">
+      <view class="stats-card">
+        <view class="stats-grid">
+          <view class="stats-item">
+            <text class="stats-item__value {{statsLoading ? 'stats-item__value--loading' : ''}}">
+              {{statsLoading ? '--' : stats.userCount}}
+            </text>
+            <text class="stats-item__label">用户数</text>
+            <view class="stats-item__icon">👥</view>
+          </view>
+          <view class="stats-divider"></view>
+          <view class="stats-item">
+            <text class="stats-item__value {{statsLoading ? 'stats-item__value--loading' : ''}}">
+              {{statsLoading ? '--' : stats.fabricCount}}
+            </text>
+            <text class="stats-item__label">面料数</text>
+            <view class="stats-item__icon">🧵</view>
+          </view>
+          <view class="stats-divider"></view>
+          <view class="stats-item">
+            <text class="stats-item__value {{statsLoading ? 'stats-item__value--loading' : ''}}">
+              {{statsLoading ? '--' : stats.orderCount}}
+            </text>
+            <text class="stats-item__label">订单数</text>
+            <view class="stats-item__icon">📋</view>
+          </view>
+          <view class="stats-divider"></view>
+          <view class="stats-item">
+            <text class="stats-item__value {{statsLoading ? 'stats-item__value--loading' : ''}}">
+              {{statsLoading ? '--' : stats.conversationCount}}
+            </text>
+            <text class="stats-item__label">会话数</text>
+            <view class="stats-item__icon">💬</view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- ============================================================
+         管理主 Tab 栏
+         ============================================================ -->
+    <view class="admin-tabs-section slide-up-delay-2">
+      <view class="admin-tabs-bar">
+        <view class="admin-tab-item {{activeAdminTab === item.key ? 'admin-tab-item--active' : ''}}"
+              wx:for="{{adminTabs}}"
+              wx:key="key"
+              data-tab="{{item.key}}"
+              bindtap="onAdminTabChange">
+          <text class="admin-tab-item__text">{{item.label}}</text>
+          <view class="admin-tab-item__indicator" wx:if="{{activeAdminTab === item.key}}"></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- ============================================================
+         用户审核 Tab 内容
+         ============================================================ -->
+    <block wx:if="{{activeAdminTab === 'users'}}">
+
+      <!-- 状态筛选 Tab -->
+      <view class="tabs-section">
+        <view class="tabs-bar">
+          <view class="tab-item {{activeStatus === item.key ? 'tab-item--active' : ''}}"
+                wx:for="{{statusTabs}}"
+                wx:key="key"
+                data-status="{{item.key}}"
+                bindtap="onTabChange">
+            <text class="tab-item__text">{{item.label}}</text>
+            <view class="tab-item__indicator" wx:if="{{activeStatus === item.key}}"></view>
+          </view>
+        </view>
+        <view class="tabs-count" wx:if="{{!listLoading}}">
+          <text class="tabs-count__text">共 {{total}} 条记录</text>
+        </view>
+      </view>
+
+      <!-- 列表加载中 -->
+      <loading-skeleton wx:if="{{listLoading}}" mode="list" />
+
+      <!-- 用户列表 -->
+      <view class="user-list" wx:elif="{{userList.length > 0}}">
+        <view class="user-card fade-in"
+              wx:for="{{userList}}"
+              wx:key="id">
+          <view class="user-card__header">
+            <view class="user-card__company-wrap">
+              <text class="user-card__company">{{item.company_name || '未填写公司'}}</text>
+              <text class="user-card__role">{{item.role === 'buyer' ? '采购方' : item.role === 'supplier' ? '供应商' : '管理员'}}</text>
+            </view>
+            <status-tag
+              status="{{item.certification_status}}"
+              text="{{certStatusMap[item.certification_status] || item.certification_status}}"
+              size="small" />
+          </view>
+          <view class="user-card__body">
+            <view class="user-card__row">
+              <text class="user-card__label">联系人</text>
+              <text class="user-card__value">{{item.contact_name || '未填写'}}</text>
+            </view>
+            <view class="user-card__row">
+              <text class="user-card__label">手机号</text>
+              <text class="user-card__value">{{item.phone || '未填写'}}</text>
+            </view>
+            <view class="user-card__row">
+              <text class="user-card__label">申请时间</text>
+              <text class="user-card__value">{{item._formattedTime}}</text>
+              <text class="user-card__time-relative">{{item._relativeTime}}</text>
+            </view>
+          </view>
+          <view class="user-card__footer" wx:if="{{activeStatus === 'pending'}}">
+            <view class="user-card__actions">
+              <view class="user-card__action-btn user-card__action-btn--reject"
+                    data-user="{{item}}"
+                    bindtap="onReviewTap">
+                <text>审核</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <view class="load-more" wx:if="{{loadingMore}}">
+          <view class="load-more__spinner"></view>
+          <text class="load-more__text">加载中...</text>
+        </view>
+        <view class="load-more" wx:elif="{{!hasMore}}">
+          <text class="load-more__text load-more__text--end">— 已加载全部记录 —</text>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <empty-state
+        wx:elif="{{!listLoading && userList.length === 0}}"
+        icon="order"
+        title="暂无{{certStatusMap[activeStatus]}}用户"
+        description="当前没有{{certStatusMap[activeStatus]}}状态的用户记录" />
+
+    </block>
+
+    <!-- ============================================================
+         订单监控 Tab 内容
+         ============================================================ -->
+    <block wx:elif="{{activeAdminTab === 'orders'}}">
+
+      <!-- 订单状态快捷筛选 -->
+      <view class="order-filter-section">
+        <scroll-view scroll-x class="order-filter-scroll">
+          <view class="order-filter-item {{orderStatusFilter === '' ? 'order-filter-item--active' : ''}}"
+                data-status=""
+                bindtap="onOrderStatusFilter">
+            <text>全部</text>
+          </view>
+          <view class="order-filter-item {{orderStatusFilter === 'pending' ? 'order-filter-item--active' : ''}}"
+                data-status="pending"
+                bindtap="onOrderStatusFilter">
+            <text>待确认</text>
+          </view>
+          <view class="order-filter-item {{orderStatusFilter === 'confirmed' ? 'order-filter-item--active' : ''}}"
+                data-status="confirmed"
+                bindtap="onOrderStatusFilter">
+            <text>已确认</text>
+          </view>
+          <view class="order-filter-item {{orderStatusFilter === 'producing' ? 'order-filter-item--active' : ''}}"
+                data-status="producing"
+                bindtap="onOrderStatusFilter">
+            <text>生产中</text>
+          </view>
+          <view class="order-filter-item {{orderStatusFilter === 'shipped' ? 'order-filter-item--active' : ''}}"
+                data-status="shipped"
+                bindtap="onOrderStatusFilter">
+            <text>已发货</text>
+          </view>
+          <view class="order-filter-item {{orderStatusFilter === 'received' ? 'order-filter-item--active' : ''}}"
+                data-status="received"
+                bindtap="onOrderStatusFilter">
+            <text>已签收</text>
+          </view>
+          <view class="order-filter-item {{orderStatusFilter === 'completed' ? 'order-filter-item--active' : ''}}"
+                data-status="completed"
+                bindtap="onOrderStatusFilter">
+            <text>已完成</text>
+          </view>
+        </scroll-view>
+        <view class="tabs-count" wx:if="{{!orderListLoading}}">
+          <text class="tabs-count__text">共 {{orderTotal}} 条订单</text>
+        </view>
+      </view>
+
+      <!-- 订单列表加载中 -->
+      <loading-skeleton wx:if="{{orderListLoading}}" mode="list" />
+
+      <!-- 订单列表 -->
+      <view class="monitor-list" wx:elif="{{orderList.length > 0}}">
+        <view class="monitor-card fade-in"
+              wx:for="{{orderList}}"
+              wx:key="id"
+              data-id="{{item.id}}"
+              bindtap="onOrderTap">
+          <view class="monitor-card__header">
+            <text class="monitor-card__title">{{item.order_no}}</text>
+            <view class="monitor-card__status monitor-card__status--{{item.status}}">
+              <text>{{item._statusText}}</text>
+            </view>
+          </view>
+          <view class="monitor-card__body">
+            <view class="monitor-card__row" wx:if="{{item.demand_title}}">
+              <text class="monitor-card__label">需求</text>
+              <text class="monitor-card__value">{{item.demand_title}}</text>
+            </view>
+            <view class="monitor-card__row">
+              <text class="monitor-card__label">采购方</text>
+              <text class="monitor-card__value">{{item._buyerName}}</text>
+            </view>
+            <view class="monitor-card__row">
+              <text class="monitor-card__label">供应商</text>
+              <text class="monitor-card__value">{{item._supplierName}}</text>
+            </view>
+            <view class="monitor-card__row">
+              <text class="monitor-card__label">金额</text>
+              <text class="monitor-card__value monitor-card__value--amount">¥{{item.total_amount}}</text>
+            </view>
+            <view class="monitor-card__row">
+              <text class="monitor-card__label">创建时间</text>
+              <text class="monitor-card__value monitor-card__value--time">{{item._createdTime}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="load-more" wx:if="{{orderLoadingMore}}">
+          <view class="load-more__spinner"></view>
+          <text class="load-more__text">加载中...</text>
+        </view>
+        <view class="load-more" wx:elif="{{!orderHasMore}}">
+          <text class="load-more__text load-more__text--end">— 已加载全部订单 —</text>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <empty-state
+        wx:elif="{{!orderListLoading && orderList.length === 0}}"
+        icon="order"
+        title="暂无订单"
+        description="当前没有订单记录" />
+
+    </block>
+
+    <!-- ============================================================
+         会话监控 Tab 内容
+         ============================================================ -->
+    <block wx:elif="{{activeAdminTab === 'conversations'}}">
+
+      <view class="tabs-count conv-count" wx:if="{{!convListLoading}}">
+        <text class="tabs-count__text">共 {{convTotal}} 个会话</text>
+      </view>
+
+      <!-- 会话列表加载中 -->
+      <loading-skeleton wx:if="{{convListLoading}}" mode="list" />
+
+      <!-- 会话列表 -->
+      <view class="monitor-list" wx:elif="{{conversationList.length > 0}}">
+        <view class="conv-card fade-in"
+              wx:for="{{conversationList}}"
+              wx:key="id"
+              data-id="{{item.id}}"
+              bindtap="onConversationTap">
+          <view class="conv-card__header">
+            <view class="conv-card__parties">
+              <text class="conv-card__buyer">{{item._buyerName}}</text>
+              <text class="conv-card__arrow">⇄</text>
+              <text class="conv-card__supplier">{{item._supplierName}}</text>
+            </view>
+            <text class="conv-card__time">{{item._lastTime}}</text>
+          </view>
+          <view class="conv-card__body">
+            <view class="conv-card__demand" wx:if="{{item.demand_title}}">
+              <text class="conv-card__demand-label">需求：</text>
+              <text class="conv-card__demand-title">{{item.demand_title}}</text>
+            </view>
+            <view class="conv-card__preview" wx:if="{{item.last_message_preview}}">
+              <text class="conv-card__preview-text">{{item.last_message_preview}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="load-more" wx:if="{{convLoadingMore}}">
+          <view class="load-more__spinner"></view>
+          <text class="load-more__text">加载中...</text>
+        </view>
+        <view class="load-more" wx:elif="{{!convHasMore}}">
+          <text class="load-more__text load-more__text--end">— 已加载全部会话 —</text>
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <empty-state
+        wx:elif="{{!convListLoading && conversationList.length === 0}}"
+        icon="message"
+        title="暂无会话"
+        description="当前没有会话记录" />
+
+    </block>
+
+  </block>
+
+  <!-- ============================================================
+       审核弹窗
+       ============================================================ -->
+  <view class="modal-mask {{reviewModalVisible ? 'modal-mask--visible' : ''}}"
+        bindtap="closeReviewModal">
+    <view class="modal-content slide-up {{reviewModalVisible ? 'modal-content--visible' : ''}}"
+          catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-header__title">审核用户资质</text>
+        <view class="modal-header__close" bindtap="closeReviewModal">
+          <text>✕</text>
+        </view>
+      </view>
+
+      <view class="modal-body" wx:if="{{reviewingUser}}">
+        <view class="modal-info">
+          <view class="modal-info__row">
+            <text class="modal-info__label">公司名称</text>
+            <text class="modal-info__value">{{reviewingUser.company_name || '未填写'}}</text>
+          </view>
+          <view class="modal-info__row">
+            <text class="modal-info__label">联系人</text>
+            <text class="modal-info__value">{{reviewingUser.contact_name || '未填写'}}</text>
+          </view>
+          <view class="modal-info__row">
+            <text class="modal-info__label">手机号</text>
+            <text class="modal-info__value">{{reviewingUser.phone || '未填写'}}</text>
+          </view>
+          <view class="modal-info__row">
+            <text class="modal-info__label">角色</text>
+            <text class="modal-info__value">{{reviewingUser.role === 'buyer' ? '采购方' : reviewingUser.role === 'supplier' ? '供应商' : '管理员'}}</text>
+          </view>
+          <view class="modal-info__row">
+            <text class="modal-info__label">申请时间</text>
+            <text class="modal-info__value">{{reviewingUser._formattedTime}}</text>
+          </view>
+        </view>
+
+        <view class="modal-reject-section">
+          <text class="modal-reject-section__label">拒绝原因（拒绝时必填）</text>
+          <textarea class="modal-reject-section__input"
+                    placeholder="请输入拒绝原因..."
+                    value="{{rejectReason}}"
+                    bindinput="onRejectReasonInput"
+                    maxlength="200"
+                    auto-height />
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <button class="modal-footer__btn modal-footer__btn--reject"
+                bindtap="onReject"
+                disabled="{{reviewLoading}}">
+          拒绝
+        </button>
+        <button class="modal-footer__btn modal-footer__btn--approve"
+                bindtap="onApprove"
+                disabled="{{reviewLoading}}">
+          {{reviewLoading ? '处理中...' : '通过'}}
+        </button>
+      </view>
+    </view>
+  </view>
+
+</view>

@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "面料详情",
+  "usingComponents": {
+    "loading-skeleton": "/components/loading-skeleton/loading-skeleton"
+  }
+}

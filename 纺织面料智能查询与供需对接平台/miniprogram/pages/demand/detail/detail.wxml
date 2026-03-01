@@ -1,0 +1,203 @@
+<!--
+  pages/demand/detail/detail.wxml - 需求详情页
+  展示需求完整信息，供应商可提交报价，采购方可查看报价列表
+-->
+
+<view class="page-container page-fade-in">
+
+  <!-- 骨架屏 -->
+  <loading-skeleton wx:if="{{loading}}" mode="detail" />
+
+  <block wx:elif="{{demand}}">
+
+    <!-- 需求头部 -->
+    <view class="detail-header fade-in">
+      <view class="detail-header__top">
+        <text class="detail-header__title">{{demand.title}}</text>
+        <status-tag status="{{demand.status || ''}}" text="{{demand._statusText}}" />
+      </view>
+      <view class="detail-header__meta">
+        <text class="detail-header__time">发布于 {{demand._timeText}}</text>
+        <text class="detail-header__quotes" wx:if="{{quoteCount > 0}}">{{quoteCount}} 个报价</text>
+      </view>
+    </view>
+
+    <!-- 需求参数 -->
+    <view class="detail-card slide-up">
+      <view class="detail-card__title">
+        <text class="detail-card__title-icon">📋</text>
+        <text>需求参数</text>
+      </view>
+      <view class="param-list">
+        <view class="param-item" wx:for="{{demand._params}}" wx:key="label">
+          <text class="param-item__label">{{item.label}}</text>
+          <text class="param-item__value">{{item.value}}</text>
+        </view>
+        <view class="param-empty" wx:if="{{demand._params.length === 0}}">
+          <text class="param-empty__text">暂无详细参数</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 采购方信息 -->
+    <view class="detail-card slide-up" wx:if="{{demand.buyer_info}}">
+      <view class="detail-card__title">
+        <text class="detail-card__title-icon">🏢</text>
+        <text>采购方信息</text>
+      </view>
+      <view class="param-list">
+        <view class="param-item" wx:if="{{demand.buyer_info.company_name}}">
+          <text class="param-item__label">公司名称</text>
+          <text class="param-item__value">{{demand.buyer_info.company_name}}</text>
+        </view>
+        <view class="param-item" wx:if="{{demand.buyer_info.contact_name}}">
+          <text class="param-item__label">联系人</text>
+          <text class="param-item__value">{{demand.buyer_info.contact_name}}</text>
+        </view>
+        <view class="param-item">
+          <text class="param-item__label">认证状态</text>
+          <status-tag
+            status="{{demand.buyer_info.certification_status || ''}}"
+            size="small"
+          />
+        </view>
+      </view>
+    </view>
+
+    <!-- 供应商：我的报价状态 -->
+    <view class="detail-card slide-up" wx:if="{{userRole === 'supplier' && myQuote}}">
+      <view class="detail-card__title">
+        <text class="detail-card__title-icon">✅</text>
+        <text>我的报价</text>
+      </view>
+      <view class="param-list">
+        <view class="param-item">
+          <text class="param-item__label">报价金额</text>
+          <text class="param-item__value param-item__value--price">¥{{myQuote.price}}/米</text>
+        </view>
+        <view class="param-item" wx:if="{{myQuote.delivery_days}}">
+          <text class="param-item__label">交货周期</text>
+          <text class="param-item__value">{{myQuote.delivery_days}} 天</text>
+        </view>
+        <view class="param-item" wx:if="{{myQuote.message}}">
+          <text class="param-item__label">报价说明</text>
+          <text class="param-item__value">{{myQuote.message}}</text>
+        </view>
+        <view class="param-item">
+          <text class="param-item__label">报价状态</text>
+          <status-tag status="{{myQuote.status || ''}}" size="small" />
+        </view>
+      </view>
+    </view>
+
+    <!-- 采购方：报价列表 -->
+    <view class="detail-card slide-up" wx:if="{{userRole === 'buyer'}}">
+      <view class="detail-card__title">
+        <text class="detail-card__title-icon">💰</text>
+        <text>收到的报价 ({{quoteList.length}})</text>
+      </view>
+
+      <view wx:if="{{quotesLoading}}" class="quotes-loading">
+        <text>加载中...</text>
+      </view>
+
+      <view wx:elif="{{quoteList.length > 0}}" class="quote-list">
+        <view class="quote-item" wx:for="{{quoteList}}" wx:key="id">
+          <view class="quote-item__header">
+            <text class="quote-item__supplier">{{item._supplierName}}</text>
+            <view class="quote-item__header-right">
+              <!-- 报价状态标签（非 pending 时显示） -->
+              <view wx:if="{{item.status === 'accepted'}}" class="quote-status-tag quote-status-tag--accepted">已接受</view>
+              <view wx:elif="{{item.status === 'rejected'}}" class="quote-status-tag quote-status-tag--rejected">已拒绝</view>
+              <text class="quote-item__price">¥{{item.price}}/米</text>
+            </view>
+          </view>
+          <view class="quote-item__info">
+            <text class="quote-item__days" wx:if="{{item.delivery_days}}">交货 {{item.delivery_days}} 天</text>
+            <text class="quote-item__time">{{item._timeText}}</text>
+          </view>
+          <text class="quote-item__message" wx:if="{{item.message}}">{{item.message}}</text>
+          <!-- 接受报价按钮：仅需求为 open 且报价为 pending 时显示 -->
+          <view class="quote-item__actions" wx:if="{{demand.status === 'open' && item.status === 'pending'}}">
+            <button class="accept-quote-btn" data-id="{{item.id}}" bindtap="acceptQuote">接受报价</button>
+          </view>
+        </view>
+      </view>
+
+      <view wx:else class="quotes-empty">
+        <text class="quotes-empty__text">暂无供应商报价</text>
+      </view>
+    </view>
+
+    <!-- 底部安全区 -->
+    <view style="height: 160rpx;"></view>
+
+  </block>
+
+  <!-- 供应商底部报价按钮 -->
+  <view class="bottom-bar safe-bottom" wx:if="{{!loading && userRole === 'supplier' && demand && demand.status === 'open'}}">
+    <button
+      class="quote-btn {{myQuote ? 'quote-btn--disabled' : ''}}"
+      bindtap="showQuote"
+      disabled="{{!!myQuote}}"
+    >
+      {{myQuote ? '已提交报价' : '立即报价'}}
+    </button>
+  </view>
+
+  <!-- 报价弹窗 -->
+  <view class="modal-mask" wx:if="{{showQuoteModal}}" catchtouchmove="preventTouchMove">
+    <view class="modal-content slide-up">
+      <view class="modal-header">
+        <text class="modal-title">提交报价</text>
+        <view class="modal-close" bindtap="hideQuote">✕</view>
+      </view>
+
+      <view class="modal-body">
+        <view class="modal-field">
+          <text class="modal-label">报价金额（元/米）<text class="modal-required">*</text></text>
+          <input
+            class="modal-input"
+            type="digit"
+            placeholder="请输入报价"
+            value="{{quotePrice}}"
+            bindinput="onQuotePriceInput"
+          />
+        </view>
+        <view class="modal-field">
+          <text class="modal-label">交货周期（天）</text>
+          <input
+            class="modal-input"
+            type="number"
+            placeholder="预计交货天数"
+            value="{{quoteDeliveryDays}}"
+            bindinput="onQuoteDaysInput"
+          />
+        </view>
+        <view class="modal-field">
+          <text class="modal-label">报价说明</text>
+          <textarea
+            class="modal-textarea"
+            placeholder="补充说明，如面料优势、最小起订量等"
+            value="{{quoteMessage}}"
+            bindinput="onQuoteMessageInput"
+            maxlength="500"
+            auto-height
+          />
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <button class="modal-btn modal-btn--cancel" bindtap="hideQuote">取消</button>
+        <button
+          class="modal-btn modal-btn--confirm"
+          bindtap="submitQuote"
+          disabled="{{quoteSubmitting}}"
+        >
+          {{quoteSubmitting ? '提交中...' : '确认报价'}}
+        </button>
+      </view>
+    </view>
+  </view>
+
+</view>

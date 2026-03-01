@@ -1,0 +1,175 @@
+/**
+ * loading-skeleton 骨架屏组件样式
+ * 使用全局设计系统变量
+ */
+
+/* ============================================================
+   骨架屏动画
+   ============================================================ */
+
+@keyframes skeletonShimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.skeleton-animate {
+  background: linear-gradient(
+    90deg,
+    var(--color-divider) 25%,
+    var(--color-bg-page) 50%,
+    var(--color-divider) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.5s ease-in-out infinite;
+}
+
+/* ============================================================
+   List 模式
+   ============================================================ */
+
+.skeleton-list {
+  padding: var(--spacing-md);
+}
+
+.skeleton-item {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  padding: var(--spacing-md) 0;
+  border-bottom: 2rpx solid var(--color-divider);
+}
+
+.skeleton-item:last-child {
+  border-bottom: none;
+}
+
+.skeleton-avatar {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: 50%;
+  background-color: var(--color-divider);
+  margin-right: var(--spacing-md);
+  flex-shrink: 0;
+}
+
+.skeleton-content {
+  flex: 1;
+}
+
+.skeleton-title {
+  width: 60%;
+  height: 32rpx;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-divider);
+  margin-bottom: var(--spacing-sm);
+}
+
+.skeleton-desc {
+  width: 90%;
+  height: 24rpx;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-divider);
+}
+
+/* ============================================================
+   Card 模式
+   ============================================================ */
+
+.skeleton-card {
+  padding: var(--spacing-md);
+}
+
+.skeleton-card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 calc(-1 * var(--spacing-xs));
+}
+
+.skeleton-card-item {
+  width: calc(50% - var(--spacing-sm));
+  margin: var(--spacing-xs);
+  background-color: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.skeleton-card-image {
+  width: 100%;
+  height: 240rpx;
+  background-color: var(--color-divider);
+}
+
+.skeleton-card-info {
+  padding: var(--spacing-sm);
+}
+
+.skeleton-card-name {
+  width: 70%;
+  height: 28rpx;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-divider);
+  margin-bottom: var(--spacing-xs);
+}
+
+.skeleton-card-param {
+  width: 50%;
+  height: 22rpx;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-divider);
+  margin-bottom: var(--spacing-xs);
+}
+
+.skeleton-card-price {
+  width: 40%;
+  height: 28rpx;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-divider);
+}
+
+/* ============================================================
+   Detail 模式
+   ============================================================ */
+
+.skeleton-detail-banner {
+  width: 100%;
+  height: 480rpx;
+  background-color: var(--color-divider);
+}
+
+.skeleton-detail-body {
+  padding: var(--spacing-lg) var(--spacing-md);
+}
+
+.skeleton-detail-title {
+  width: 60%;
+  height: 40rpx;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-divider);
+  margin-bottom: var(--spacing-md);
+}
+
+.skeleton-detail-tag-row {
+  display: flex;
+  flex-direction: row;
+  margin-bottom: var(--spacing-lg);
+}
+
+.skeleton-detail-tag {
+  width: 120rpx;
+  height: 40rpx;
+  border-radius: var(--radius-round);
+  background-color: var(--color-divider);
+  margin-right: var(--spacing-sm);
+}
+
+.skeleton-detail-line {
+  height: 28rpx;
+  border-radius: var(--radius-sm);
+  background-color: var(--color-divider);
+  margin-bottom: var(--spacing-sm);
+}

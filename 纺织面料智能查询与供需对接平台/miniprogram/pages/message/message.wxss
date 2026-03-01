@@ -1,0 +1,427 @@
+/**
+ * pages/message/message.wxss - 消息中心页面样式
+ * 双Tab布局：会话列表 + 通知列表
+ * 使用全局设计系统变量，macaron/pastel配色
+ * 需求: 8.1, 8.2, 8.4, 8.5, 10.3
+ */
+
+/* ============================================================
+   页面容器
+   ============================================================ */
+
+.page-container {
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+  padding-bottom: 40rpx;
+}
+
+/* ============================================================
+   页面标题栏
+   ============================================================ */
+
+.page-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  background-color: var(--color-bg-card);
+}
+
+.page-header__title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+/* ============================================================
+   Tab栏
+   ============================================================ */
+
+.tab-bar {
+  display: flex;
+  flex-direction: row;
+  background-color: var(--color-bg-card);
+  border-bottom: 2rpx solid var(--color-divider);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tab-bar__item {
+  flex: 1;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: 24rpx 0;
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.tab-bar__item--active {
+  border-bottom: 4rpx solid #7EB8DA;
+}
+
+.tab-bar__item--active .tab-bar__text {
+  color: #7EB8DA;
+  font-weight: var(--font-weight-bold);
+}
+
+.tab-bar__text {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  transition: color 0.3s ease;
+}
+
+.tab-bar__badge {
+  background-color: var(--color-danger);
+  border-radius: var(--radius-round);
+  padding: 2rpx 10rpx;
+  margin-left: 8rpx;
+  min-width: 32rpx;
+  text-align: center;
+}
+
+.tab-bar__badge-text {
+  font-size: 20rpx;
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ============================================================
+   通知统计栏
+   ============================================================ */
+
+.notification-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  background-color: var(--color-bg-card);
+  border-bottom: 2rpx solid var(--color-divider);
+}
+
+.notification-header__count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.notification-header__badge {
+  background-color: var(--color-danger);
+  border-radius: var(--radius-round);
+  padding: 4rpx 16rpx;
+}
+
+.notification-header__badge-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ============================================================
+   会话卡片列表
+   ============================================================ */
+
+.conversation-list {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.conversation-card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.conversation-card:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-md);
+}
+
+/* 未读会话高亮 */
+.conversation-card--unread {
+  background-color: #F0F7FC;
+  border-left: 6rpx solid #7EB8DA;
+}
+
+/* 头像 */
+.conversation-card__avatar {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #B8D8E8, #7EB8DA);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: var(--spacing-md);
+}
+
+.conversation-card__avatar-text {
+  font-size: 36rpx;
+  color: #FFFFFF;
+  font-weight: var(--font-weight-bold);
+}
+
+/* 内容区 */
+.conversation-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.conversation-card__top-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6rpx;
+}
+
+.conversation-card__name {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-bold);
+  flex: 1;
+  margin-right: var(--spacing-sm);
+}
+
+.conversation-card__time {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-placeholder);
+  flex-shrink: 0;
+}
+
+.conversation-card__demand {
+  font-size: var(--font-size-sm);
+  color: #7EB8DA;
+  margin-bottom: 6rpx;
+}
+
+.conversation-card__bottom-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.conversation-card__preview {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  flex: 1;
+  margin-right: var(--spacing-sm);
+}
+
+.conversation-card__unread-badge {
+  background-color: var(--color-danger);
+  border-radius: var(--radius-round);
+  padding: 2rpx 12rpx;
+  min-width: 36rpx;
+  text-align: center;
+  flex-shrink: 0;
+}
+
+.conversation-card__unread-text {
+  font-size: 20rpx;
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-bold);
+}
+
+/* ============================================================
+   消息卡片列表（通知Tab，保留原有样式）
+   ============================================================ */
+
+.message-list {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.message-card {
+  position: relative;
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  background-color: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.3s ease;
+}
+
+.message-card:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-md);
+}
+
+/* 未读消息高亮 */
+.message-card--unread {
+  background-color: var(--color-primary-bg);
+  border-left: 6rpx solid var(--color-primary);
+}
+
+/* 未读指示点 */
+.message-card__dot {
+  position: absolute;
+  top: var(--spacing-lg);
+  right: var(--spacing-lg);
+  width: 16rpx;
+  height: 16rpx;
+  border-radius: 50%;
+  background-color: var(--color-danger);
+  animation: dotPulse 2s ease-in-out infinite;
+}
+
+@keyframes dotPulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(0.8);
+  }
+}
+
+/* 类型图标 */
+.message-card__icon-wrap {
+  width: 80rpx;
+  height: 80rpx;
+  border-radius: var(--radius-lg);
+  background-color: var(--color-bg-page);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-right: var(--spacing-md);
+  transition: background-color 0.3s ease;
+}
+
+.message-card--unread .message-card__icon-wrap {
+  background-color: var(--color-bg-card);
+}
+
+.message-card__icon {
+  font-size: 40rpx;
+  line-height: 1;
+}
+
+/* 消息内容区 */
+.message-card__content {
+  flex: 1;
+  min-width: 0;
+}
+
+.message-card__title-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xs);
+}
+
+.message-card__title {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-normal);
+  flex: 1;
+  margin-right: var(--spacing-sm);
+}
+
+.message-card__title--unread {
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary-dark);
+}
+
+.message-card__time {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-placeholder);
+  flex-shrink: 0;
+}
+
+.message-card__summary {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+  margin-bottom: var(--spacing-sm);
+}
+
+.message-card__meta {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.message-card__type-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 16rpx;
+  border-radius: var(--radius-round);
+  background-color: var(--color-bg-page);
+}
+
+.message-card--unread .message-card__type-tag {
+  background-color: var(--color-bg-card);
+}
+
+.message-card__type-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.message-card__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.message-card__arrow-icon {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-placeholder);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+
+/* ============================================================
+   加载更多
+   ============================================================ */
+
+.load-more {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg) 0;
+}
+
+.load-more__spinner {
+  width: 36rpx;
+  height: 36rpx;
+  border: 4rpx solid var(--color-divider);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  margin-right: var(--spacing-sm);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.load-more__text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.load-more__text--end {
+  color: var(--color-text-placeholder);
+}

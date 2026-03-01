@@ -1,0 +1,66 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/fabric/list/list",
+    "pages/fabric/detail/detail",
+    "pages/fabric/compare/compare",
+    "pages/fabric/publish/publish",
+    "pages/fabric/manage/manage",
+    "pages/message/message",
+    "pages/message/chat/chat",
+    "pages/profile/profile",
+    "pages/login/login",
+    "pages/demand/list/list",
+    "pages/demand/detail/detail",
+    "pages/demand/publish/publish",
+    "pages/demand/match/match",
+    "pages/sample/sample",
+    "pages/order/list/list",
+    "pages/order/create/create",
+    "pages/order/detail/detail",
+    "pages/favorites/favorites",
+    "pages/admin/admin"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#7EB8DA",
+    "navigationBarTitleText": "纺织面料平台",
+    "navigationBarTextStyle": "white",
+    "backgroundColor": "#F8F8FC",
+    "backgroundTextStyle": "dark",
+    "enablePullDownRefresh": false
+  },
+  "tabBar": {
+    "color": "#8E8E9E",
+    "selectedColor": "#7EB8DA",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/home/home",
+        "text": "首页",
+        "iconPath": "assets/icons/home.png",
+        "selectedIconPath": "assets/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/fabric/list/list",
+        "text": "面料",
+        "iconPath": "assets/icons/fabric.png",
+        "selectedIconPath": "assets/icons/fabric-active.png"
+      },
+      {
+        "pagePath": "pages/message/message",
+        "text": "消息",
+        "iconPath": "assets/icons/message.png",
+        "selectedIconPath": "assets/icons/message-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "assets/icons/profile.png",
+        "selectedIconPath": "assets/icons/profile-active.png"
+      }
+    ]
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

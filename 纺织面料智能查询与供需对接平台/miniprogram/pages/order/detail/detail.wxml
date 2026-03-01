@@ -1,0 +1,303 @@
+<!--
+  pages/order/detail/detail.wxml - 订单详情页面
+  展示订单完整信息：订单号、面料明细、总金额、收货地址
+  展示订单状态时间线（纵向步骤条，标注各状态时间）
+  供应商可操作更新状态按钮（根据当前状态展示下一步操作）
+  需求: 7.5, 7.6
+-->
+
+<view class="page-container">
+
+  <!-- ============================================================
+       骨架屏（加载中）
+       ============================================================ -->
+  <loading-skeleton wx:if="{{loading}}" mode="detail" rows="8" />
+
+  <!-- ============================================================
+       加载失败
+       ============================================================ -->
+  <view class="error-container fade-in" wx:elif="{{loadError}}">
+    <empty-state
+      icon="error"
+      title="加载失败"
+      description="订单信息加载失败，请重试" />
+    <view class="error-retry">
+      <button class="btn-retry" bindtap="onRetry">重新加载</button>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       订单详情内容
+       ============================================================ -->
+  <block wx:elif="{{order}}">
+
+    <!-- ============================================================
+         订单状态头部
+         ============================================================ -->
+    <view class="status-header fade-in">
+      <view class="status-header__icon">
+        {{statusIconMap[order.status] || '📋'}}
+      </view>
+      <view class="status-header__info">
+        <view class="status-header__row">
+          <text class="status-header__text">{{order.statusText}}</text>
+          <status-tag
+            status="{{order.status}}"
+            text="{{order.statusText}}"
+            type="{{order.statusType}}"
+            size="small" />
+        </view>
+        <text class="status-header__order-no">订单号：{{order.order_no}}</text>
+      </view>
+    </view>
+
+    <view class="detail-content">
+
+      <!-- ============================================================
+           状态时间线
+           ============================================================ -->
+      <view class="section-card slide-up">
+        <view class="section-card__title">
+          <text class="section-card__title-icon">📊</text>
+          <text>订单进度</text>
+        </view>
+
+        <view class="timeline">
+          <view class="timeline__item {{item.completed ? 'timeline__item--completed' : ''}} {{item.current ? 'timeline__item--current' : ''}} {{item.future ? 'timeline__item--future' : ''}}"
+                wx:for="{{timeline}}"
+                wx:key="status">
+            <!-- 时间线左侧：圆点 + 连接线 -->
+            <view class="timeline__left">
+              <view class="timeline__dot {{item.completed ? 'timeline__dot--completed' : ''}} {{item.current ? 'timeline__dot--current' : ''}}">
+                <text class="timeline__dot-icon" wx:if="{{item.completed && !item.current}}">✓</text>
+                <text class="timeline__dot-icon" wx:elif="{{item.current}}">{{item.icon}}</text>
+              </view>
+              <view class="timeline__line {{item.completed && !item.current ? 'timeline__line--completed' : ''}}"
+                    wx:if="{{index < timeline.length - 1}}"></view>
+            </view>
+
+            <!-- 时间线右侧：状态文本 + 时间 -->
+            <view class="timeline__right">
+              <text class="timeline__status-text {{item.current ? 'timeline__status-text--current' : ''}} {{item.future ? 'timeline__status-text--future' : ''}}">
+                {{item.text}}
+              </text>
+              <text class="timeline__time" wx:if="{{item.time}}">{{item.time}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- ============================================================
+           需求信息（当有关联需求时显示）
+           ============================================================ -->
+      <view class="section-card slide-up" wx:if="{{demandInfo}}">
+        <view class="section-card__title">
+          <text class="section-card__title-icon">📋</text>
+          <text>需求信息</text>
+        </view>
+        <view class="info-list">
+          <view class="info-row" wx:if="{{demandInfo.title}}">
+            <text class="info-row__label">需求标题</text>
+            <text class="info-row__value">{{demandInfo.title}}</text>
+          </view>
+          <view class="info-row" wx:if="{{demandInfo.quantity}}">
+            <text class="info-row__label">需求数量</text>
+            <text class="info-row__value">{{demandInfo.quantity}} 米</text>
+          </view>
+          <view class="info-row" wx:if="{{demandInfo.composition}}">
+            <text class="info-row__label">成分要求</text>
+            <text class="info-row__value">{{demandInfo.composition}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- ============================================================
+           报价信息（当有关联报价时显示）
+           ============================================================ -->
+      <view class="section-card slide-up" wx:if="{{quoteInfo}}">
+        <view class="section-card__title">
+          <text class="section-card__title-icon">💰</text>
+          <text>报价信息</text>
+        </view>
+        <view class="info-list">
+          <view class="info-row" wx:if="{{quoteInfo.price}}">
+            <text class="info-row__label">报价单价</text>
+            <text class="info-row__value info-row__value--accent">¥{{quoteInfo.price}}/米</text>
+          </view>
+          <view class="info-row" wx:if="{{quoteInfo.delivery_days}}">
+            <text class="info-row__label">交货天数</text>
+            <text class="info-row__value">{{quoteInfo.delivery_days}} 天</text>
+          </view>
+          <view class="info-row" wx:if="{{quoteInfo.message}}">
+            <text class="info-row__label">报价说明</text>
+            <text class="info-row__value">{{quoteInfo.message}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- ============================================================
+           面料明细
+           ============================================================ -->
+      <view class="section-card slide-up">
+        <view class="section-card__title">
+          <text class="section-card__title-icon">🧵</text>
+          <text>面料明细</text>
+        </view>
+
+        <view class="item-list">
+          <view class="item-card"
+                wx:for="{{order.items}}"
+                wx:key="id">
+            <!-- 面料名称 -->
+            <view class="item-card__header">
+              <text class="item-card__name text-ellipsis">
+                {{item.fabric.name || ('面料#' + item.fabric_id)}}
+              </text>
+            </view>
+
+            <!-- 面料参数（如果有 fabric 信息） -->
+            <view class="item-card__params" wx:if="{{item.fabric}}">
+              <text class="item-card__param" wx:if="{{item.fabric.composition}}">{{item.fabric.composition}}</text>
+              <text class="item-card__param-sep" wx:if="{{item.fabric.composition && item.fabric.craft}}">|</text>
+              <text class="item-card__param" wx:if="{{item.fabric.craft}}">{{item.fabric.craft}}</text>
+            </view>
+
+            <!-- 数量、单价、小计 -->
+            <view class="item-card__detail">
+              <view class="item-card__detail-row">
+                <text class="item-card__detail-label">数量</text>
+                <text class="item-card__detail-value">{{item.quantity}} 米</text>
+              </view>
+              <view class="item-card__detail-row">
+                <text class="item-card__detail-label">单价</text>
+                <text class="item-card__detail-value">¥{{item.unit_price}}/米</text>
+              </view>
+              <view class="item-card__detail-row item-card__detail-row--subtotal">
+                <text class="item-card__detail-label">小计</text>
+                <text class="item-card__detail-value item-card__detail-value--accent">¥{{item.subtotal}}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+
+        <!-- 总金额 -->
+        <view class="total-amount">
+          <text class="total-amount__label">订单总额</text>
+          <text class="total-amount__value">¥{{order.total_amount}}</text>
+        </view>
+      </view>
+
+      <!-- ============================================================
+           收货地址
+           ============================================================ -->
+      <view class="section-card slide-up">
+        <view class="section-card__title">
+          <text class="section-card__title-icon">📍</text>
+          <text>收货地址</text>
+        </view>
+        <view class="address-content">
+          <text class="address-text">{{order.address}}</text>
+        </view>
+      </view>
+
+      <!-- ============================================================
+           订单信息
+           ============================================================ -->
+      <view class="section-card slide-up">
+        <view class="section-card__title">
+          <text class="section-card__title-icon">📝</text>
+          <text>订单信息</text>
+        </view>
+        <view class="info-list">
+          <view class="info-row">
+            <text class="info-row__label">订单编号</text>
+            <text class="info-row__value">{{order.order_no}}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-row__label">创建时间</text>
+            <text class="info-row__value">{{order.created_at}}</text>
+          </view>
+          <view class="info-row">
+            <text class="info-row__label">更新时间</text>
+            <text class="info-row__value">{{order.updated_at}}</text>
+          </view>
+          <view class="info-row" wx:if="{{order.buyer}}">
+            <text class="info-row__label">采购方</text>
+            <text class="info-row__value">{{order.buyer.company_name || order.buyer.contact_name || '-'}}</text>
+          </view>
+          <view class="info-row" wx:if="{{order.supplier}}">
+            <text class="info-row__label">供应商</text>
+            <text class="info-row__value">{{order.supplier.company_name || order.supplier.contact_name || '-'}}</text>
+          </view>
+          <view class="info-row" wx:if="{{order.tracking_no}}">
+            <text class="info-row__label">物流单号</text>
+            <text class="info-row__value">{{order.tracking_no}}</text>
+          </view>
+        </view>
+      </view>
+
+    </view>
+
+    <!-- ============================================================
+         底部操作栏（有可操作按钮时展示）
+         ============================================================ -->
+    <view class="action-bar safe-bottom" wx:if="{{nextAction}}">
+      <view class="action-bar__info">
+        <text class="action-bar__hint">下一步操作</text>
+        <text class="action-bar__status">{{nextAction.icon}} {{nextAction.text}}</text>
+      </view>
+      <button
+        class="action-btn {{updatingStatus ? 'action-btn--loading' : ''}}"
+        bindtap="onActionTap"
+        disabled="{{updatingStatus}}">
+        <text wx:if="{{!updatingStatus}}">{{nextAction.text}}</text>
+        <view class="loading-dots" wx:else>
+          <view class="dot dot1"></view>
+          <view class="dot dot2"></view>
+          <view class="dot dot3"></view>
+        </view>
+      </button>
+    </view>
+
+    <!-- ============================================================
+         状态更新确认弹窗
+         ============================================================ -->
+    <view class="confirm-mask" wx:if="{{showConfirm}}" catchtouchmove="preventTouchMove">
+      <view class="confirm-modal slide-up">
+        <view class="confirm-modal__header">
+          <text class="confirm-modal__title">确认操作</text>
+        </view>
+
+        <view class="confirm-modal__body">
+          <view class="confirm-modal__icon-wrap">
+            <text class="confirm-modal__icon">{{nextAction.icon}}</text>
+          </view>
+          <text class="confirm-modal__message">
+            确认将订单状态更新为「{{statusTextMap[confirmTargetStatus]}}」？
+          </text>
+          <text class="confirm-modal__sub-message">
+            订单号：{{order.order_no}}
+          </text>
+
+          <!-- 发货时填写物流单号 -->
+          <view class="tracking-input-wrap" wx:if="{{confirmTargetStatus === 'shipped'}}">
+            <text class="tracking-input__label">物流单号</text>
+            <input
+              class="tracking-input__field"
+              type="text"
+              placeholder="请输入物流单号"
+              value="{{trackingNoInput}}"
+              bindinput="onTrackingNoInput" />
+          </view>
+        </view>
+
+        <view class="confirm-modal__footer">
+          <button class="confirm-btn confirm-btn--cancel" bindtap="onCancelConfirm">取消</button>
+          <button class="confirm-btn confirm-btn--submit" bindtap="onConfirmUpdate">确认</button>
+        </view>
+      </view>
+    </view>
+
+  </block>
+
+</view>

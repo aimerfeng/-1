@@ -1,0 +1,127 @@
+/**
+ * status-tag 状态标签组件样式
+ * 使用全局设计系统变量
+ */
+
+.status-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 16rpx;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+}
+
+/* ============================================================
+   圆角胶囊样式
+   ============================================================ */
+
+.status-tag--round {
+  border-radius: var(--radius-round);
+}
+
+/* ============================================================
+   尺寸变体
+   ============================================================ */
+
+.status-tag--small {
+  padding: 2rpx 12rpx;
+  font-size: var(--font-size-xs);
+}
+
+.status-tag--small .status-tag__dot {
+  width: 10rpx;
+  height: 10rpx;
+  margin-right: 6rpx;
+}
+
+.status-tag--default {
+  padding: 4rpx 16rpx;
+  font-size: var(--font-size-sm);
+}
+
+.status-tag--large {
+  padding: 8rpx 20rpx;
+  font-size: var(--font-size-base);
+}
+
+.status-tag--large .status-tag__dot {
+  width: 14rpx;
+  height: 14rpx;
+  margin-right: 10rpx;
+}
+
+/* ============================================================
+   状态指示圆点
+   ============================================================ */
+
+.status-tag__dot {
+  width: 12rpx;
+  height: 12rpx;
+  border-radius: 50%;
+  margin-right: 8rpx;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+   颜色变体
+   ============================================================ */
+
+/* Primary */
+.status-tag--primary {
+  background-color: var(--color-primary-bg);
+  color: var(--color-primary);
+}
+
+.status-tag--primary .status-tag__dot {
+  background-color: var(--color-primary);
+}
+
+/* Success */
+.status-tag--success {
+  background-color: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.status-tag--success .status-tag__dot {
+  background-color: var(--color-success);
+}
+
+/* Warning */
+.status-tag--warning {
+  background-color: var(--color-warning-bg);
+  color: var(--color-warning);
+}
+
+.status-tag--warning .status-tag__dot {
+  background-color: var(--color-warning);
+}
+
+/* Danger */
+.status-tag--danger {
+  background-color: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.status-tag--danger .status-tag__dot {
+  background-color: var(--color-danger);
+}
+
+/* Info */
+.status-tag--info {
+  background-color: var(--color-info-bg);
+  color: var(--color-info);
+}
+
+.status-tag--info .status-tag__dot {
+  background-color: var(--color-info);
+}
+
+/* ============================================================
+   文本
+   ============================================================ */
+
+.status-tag__text {
+  font-weight: var(--font-weight-medium);
+  white-space: nowrap;
+}

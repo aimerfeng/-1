@@ -1,0 +1,655 @@
+/**
+ * pages/login/login.wxss - 登录与注册页面样式
+ * 使用设计系统 CSS 变量，实现流畅动效和交互反馈
+ * 需求: 10.1 统一视觉设计, 10.4 即时视觉反馈
+ */
+
+/* ============================================================
+   Page Layout
+   ============================================================ */
+
+.login-page {
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* ============================================================
+   Header / Branding Area
+   ============================================================ */
+
+.header {
+  position: relative;
+  height: 420rpx;
+  overflow: hidden;
+}
+
+.header-bg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, #7EB8DA 0%, #A8D4EA 50%, #B8E0F0 100%);
+  border-radius: 0 0 60rpx 60rpx;
+}
+
+.header-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  padding-top: 80rpx;
+}
+
+.logo-wrap {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 30rpx;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--spacing-md);
+  backdrop-filter: blur(10px);
+}
+
+.logo-icon {
+  font-size: 56rpx;
+  color: #FFFFFF;
+  font-weight: var(--font-weight-bold);
+}
+
+.app-title {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: #FFFFFF;
+  margin-bottom: var(--spacing-xs);
+  letter-spacing: 4rpx;
+}
+
+.app-subtitle {
+  font-size: var(--font-size-sm);
+  color: rgba(255, 255, 255, 0.8);
+  letter-spacing: 2rpx;
+}
+
+/* ============================================================
+   Tab Bar
+   ============================================================ */
+
+.tab-bar {
+  display: flex;
+  justify-content: center;
+  margin: -40rpx auto 0;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xs);
+  width: 400rpx;
+  box-shadow: var(--shadow-md);
+  position: relative;
+  z-index: 2;
+}
+
+.tab-item {
+  flex: 1;
+  text-align: center;
+  padding: var(--spacing-sm) 0;
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  position: relative;
+  transition: color 0.3s ease;
+  border-radius: var(--radius-lg);
+}
+
+.tab-active {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+  background: var(--color-primary-bg);
+}
+
+.tab-indicator {
+  position: absolute;
+  bottom: 4rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40rpx;
+  height: 4rpx;
+  background: var(--color-primary);
+  border-radius: var(--radius-round);
+  animation: scaleIn 0.3s ease;
+}
+
+@keyframes scaleIn {
+  from {
+    transform: translateX(-50%) scaleX(0);
+  }
+  to {
+    transform: translateX(-50%) scaleX(1);
+  }
+}
+
+/* ============================================================
+   Form Container
+   ============================================================ */
+
+.form-container {
+  padding: var(--spacing-xl) var(--spacing-lg);
+  flex: 1;
+}
+
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xs);
+  display: block;
+}
+
+.input-wrap {
+  display: flex;
+  align-items: center;
+  height: 96rpx;
+  padding: 0 var(--spacing-md);
+  background: var(--color-bg-card);
+  border: 2rpx solid var(--color-border);
+  border-radius: var(--radius-lg);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-wrap:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 4rpx rgba(26, 82, 118, 0.1);
+}
+
+.input-wrap-error {
+  border-color: var(--color-danger) !important;
+  box-shadow: 0 0 0 4rpx rgba(231, 76, 60, 0.1) !important;
+}
+
+.input-icon {
+  font-size: var(--font-size-lg);
+  margin-right: var(--spacing-sm);
+  width: 40rpx;
+  text-align: center;
+}
+
+.form-input {
+  flex: 1;
+  height: 92rpx;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+}
+
+.placeholder-text {
+  color: var(--color-text-placeholder);
+}
+
+.input-clear {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-placeholder);
+  padding: var(--spacing-xs);
+}
+
+.input-clear:active {
+  color: var(--color-text-secondary);
+}
+
+.input-toggle {
+  font-size: var(--font-size-lg);
+  padding: var(--spacing-xs);
+}
+
+.error-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-danger);
+  margin-top: var(--spacing-xs);
+  padding-left: var(--spacing-sm);
+  animation: shakeIn 0.3s ease;
+}
+
+@keyframes shakeIn {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-8rpx); }
+  75% { transform: translateX(8rpx); }
+}
+
+/* ============================================================
+   Verification Code Input
+   ============================================================ */
+
+.code-input-wrap {
+  padding-right: var(--spacing-xs);
+}
+
+.code-btn {
+  flex-shrink: 0;
+  padding: var(--spacing-xs) var(--spacing-md);
+  background: var(--color-primary-bg);
+  color: var(--color-primary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  transition: all 0.3s ease;
+}
+
+.code-btn:active {
+  background: var(--color-primary);
+  color: #FFFFFF;
+}
+
+.code-btn-disabled {
+  background: var(--color-bg-disabled);
+  color: var(--color-text-placeholder);
+  pointer-events: none;
+}
+
+/* ============================================================
+   Buttons
+   ============================================================ */
+
+.btn-submit {
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  background: linear-gradient(135deg, #F2A6B3 0%, #F7C4CE 100%);
+  color: #FFFFFF;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  border: none;
+  border-radius: var(--radius-xl);
+  letter-spacing: 8rpx;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  box-shadow: 0 6rpx 20rpx rgba(242, 166, 179, 0.35);
+}
+
+.btn-submit::after {
+  border: none;
+}
+
+.btn-submit:active:not(.btn-disabled):not(.btn-loading) {
+  transform: scale(0.97);
+  opacity: 0.9;
+}
+
+.btn-disabled {
+  background: var(--color-bg-disabled) !important;
+  color: var(--color-text-placeholder) !important;
+  pointer-events: none;
+}
+
+.btn-loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* Loading dots animation */
+.loading-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 96rpx;
+}
+
+.dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #FFFFFF;
+  margin: 0 8rpx;
+  animation: dotBounce 1.4s infinite ease-in-out both;
+}
+
+.dot1 { animation-delay: -0.32s; }
+.dot2 { animation-delay: -0.16s; }
+.dot3 { animation-delay: 0s; }
+
+@keyframes dotBounce {
+  0%, 80%, 100% {
+    transform: scale(0.6);
+    opacity: 0.4;
+  }
+  40% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   Divider
+   ============================================================ */
+
+.divider-line {
+  display: flex;
+  align-items: center;
+  margin: var(--spacing-xl) 0;
+}
+
+.divider-border {
+  flex: 1;
+  height: 2rpx;
+  background: var(--color-divider);
+}
+
+.divider-text {
+  padding: 0 var(--spacing-md);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-placeholder);
+}
+
+/* ============================================================
+   WeChat Login Button
+   ============================================================ */
+
+.btn-wechat {
+  width: 100%;
+  height: 96rpx;
+  line-height: 96rpx;
+  background: #07C160;
+  color: #FFFFFF;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  border: none;
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.btn-wechat::after {
+  border: none;
+}
+
+.btn-wechat:active:not(.btn-loading) {
+  transform: scale(0.97);
+  background: #06AD56;
+}
+
+.wechat-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48rpx;
+  height: 48rpx;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  margin-right: var(--spacing-sm);
+}
+
+/* ============================================================
+   Footer
+   ============================================================ */
+
+.footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  padding: var(--spacing-lg) var(--spacing-md);
+  padding-bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom));
+}
+
+.footer-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-placeholder);
+}
+
+.footer-link {
+  font-size: var(--font-size-xs);
+  color: var(--color-primary-light);
+}
+
+/* ============================================================
+   Role Selection Modal
+   ============================================================ */
+
+.modal-mask {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-container {
+  width: 100%;
+  max-height: 85vh;
+  background: var(--color-bg-card);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  padding: var(--spacing-xl) var(--spacing-lg);
+  padding-bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom));
+  overflow-y: auto;
+}
+
+.modal-header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.modal-title {
+  display: block;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.modal-subtitle {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-loose);
+}
+
+/* ============================================================
+   Role Cards
+   ============================================================ */
+
+.role-options {
+  display: flex;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-xl);
+}
+
+.role-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-lg) var(--spacing-md);
+  background: var(--color-bg-page);
+  border: 2rpx solid var(--color-border);
+  border-radius: var(--radius-lg);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.role-card:active {
+  transform: scale(0.97);
+}
+
+.role-card-active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+  box-shadow: 0 4rpx 20rpx rgba(126, 184, 218, 0.2);
+}
+
+.role-icon-wrap {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--spacing-sm);
+}
+
+.buyer-icon {
+  background: linear-gradient(135deg, #7EB8DA, #A8D4EA);
+}
+
+.supplier-icon {
+  background: linear-gradient(135deg, #F2A6B3, #F7C4CE);
+}
+
+.role-icon-text {
+  font-size: var(--font-size-lg);
+  color: #FFFFFF;
+  font-weight: var(--font-weight-bold);
+}
+
+.role-name {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.role-desc {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  text-align: center;
+  line-height: var(--line-height-loose);
+}
+
+.role-check {
+  position: absolute;
+  top: var(--spacing-sm);
+  right: var(--spacing-sm);
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #FFFFFF;
+  font-size: var(--font-size-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: scaleIn 0.3s ease;
+}
+
+/* ============================================================
+   Profile Form in Modal
+   ============================================================ */
+
+.profile-form {
+  margin-bottom: var(--spacing-lg);
+  animation: fadeIn 0.3s ease;
+}
+
+.profile-form .form-group {
+  margin-bottom: var(--spacing-md);
+}
+
+.profile-form .input-wrap {
+  height: 88rpx;
+}
+
+.profile-form .form-input {
+  height: 84rpx;
+}
+
+.btn-confirm-role {
+  margin-top: var(--spacing-sm);
+}
+
+/* ============================================================
+   Register Role Selection (inline)
+   ============================================================ */
+
+.reg-role-label {
+  display: block;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.reg-role-options {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.reg-role-item {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-md);
+  background: var(--color-bg-card);
+  border: 2rpx solid var(--color-border);
+  border-radius: var(--radius-lg);
+  position: relative;
+  transition: all 0.3s ease;
+}
+
+.reg-role-item:active {
+  transform: scale(0.97);
+}
+
+.reg-role-active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-bg);
+}
+
+.reg-role-icon {
+  width: 56rpx;
+  height: 56rpx;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-sm);
+  color: #FFFFFF;
+  font-weight: var(--font-weight-bold);
+  margin-right: var(--spacing-sm);
+  flex-shrink: 0;
+}
+
+.buyer-bg {
+  background: linear-gradient(135deg, #7EB8DA, #A8D4EA);
+}
+
+.supplier-bg {
+  background: linear-gradient(135deg, #F2A6B3, #F7C4CE);
+}
+
+.reg-role-name {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.reg-role-check {
+  position: absolute;
+  top: 50%;
+  right: var(--spacing-sm);
+  transform: translateY(-50%);
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: #FFFFFF;
+  font-size: var(--font-size-xs);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

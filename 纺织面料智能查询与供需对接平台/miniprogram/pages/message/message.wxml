@@ -1,0 +1,171 @@
+<!--
+  pages/message/message.wxml - 消息中心页面
+  双Tab布局：会话列表 + 通知列表
+  需求: 8.1, 8.2, 8.3, 8.4, 8.5, 10.3
+-->
+
+<view class="page-container page-fade-in">
+
+  <!-- ============================================================
+       页面标题栏
+       ============================================================ -->
+  <view class="page-header">
+    <text class="page-header__title">消息中心</text>
+  </view>
+
+  <!-- ============================================================
+       Tab栏：会话 / 通知
+       ============================================================ -->
+  <view class="tab-bar">
+    <view class="tab-bar__item {{activeTab === 'conversations' ? 'tab-bar__item--active' : ''}}"
+          data-tab="conversations"
+          bindtap="onTabChange">
+      <text class="tab-bar__text">会话</text>
+      <view class="tab-bar__badge" wx:if="{{unreadConvCount > 0}}">
+        <text class="tab-bar__badge-text">{{unreadConvCount > 99 ? '99+' : unreadConvCount}}</text>
+      </view>
+    </view>
+    <view class="tab-bar__item {{activeTab === 'notifications' ? 'tab-bar__item--active' : ''}}"
+          data-tab="notifications"
+          bindtap="onTabChange">
+      <text class="tab-bar__text">通知</text>
+      <view class="tab-bar__badge" wx:if="{{unreadCount > 0}}">
+        <text class="tab-bar__badge-text">{{unreadCount > 99 ? '99+' : unreadCount}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       会话Tab内容
+       ============================================================ -->
+  <view wx:if="{{activeTab === 'conversations'}}">
+
+    <!-- 骨架屏 -->
+    <loading-skeleton wx:if="{{convLoading}}" mode="list" rows="6" />
+
+    <!-- 会话列表 -->
+    <view class="conversation-list" wx:elif="{{conversationList.length > 0}}">
+      <view class="conversation-card fade-in {{item.unreadCount > 0 ? 'conversation-card--unread' : ''}}"
+            wx:for="{{conversationList}}"
+            wx:key="id"
+            data-conversation="{{item}}"
+            bindtap="onConversationTap">
+
+        <!-- 头像区域 -->
+        <view class="conversation-card__avatar">
+          <text class="conversation-card__avatar-text">{{item.counterpartyName[0] || '?'}}</text>
+        </view>
+
+        <!-- 内容区域 -->
+        <view class="conversation-card__content">
+          <!-- 第一行：对方名称 + 时间 -->
+          <view class="conversation-card__top-row">
+            <text class="conversation-card__name text-ellipsis">{{item.counterpartyName}}</text>
+            <text class="conversation-card__time">{{item.relativeTime}}</text>
+          </view>
+
+          <!-- 第二行：需求标题 -->
+          <text class="conversation-card__demand text-ellipsis">{{item.demandTitle}}</text>
+
+          <!-- 第三行：最后消息预览 + 未读角标 -->
+          <view class="conversation-card__bottom-row">
+            <text class="conversation-card__preview text-ellipsis">{{item.previewText || '暂无消息'}}</text>
+            <view class="conversation-card__unread-badge" wx:if="{{item.unreadCount > 0}}">
+              <text class="conversation-card__unread-text">{{item.unreadCount > 99 ? '99+' : item.unreadCount}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 加载更多 -->
+      <view class="load-more" wx:if="{{convLoadingMore}}">
+        <view class="load-more__spinner"></view>
+        <text class="load-more__text">加载中...</text>
+      </view>
+      <view class="load-more" wx:elif="{{!convHasMore}}">
+        <text class="load-more__text load-more__text--end">— 已加载全部会话 —</text>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <empty-state
+      wx:elif="{{!convLoading && conversationList.length === 0}}"
+      icon="message"
+      title="暂无会话"
+      description="当供应商对您的需求报价后，会话将在这里展示" />
+  </view>
+
+  <!-- ============================================================
+       通知Tab内容（保留原有布局）
+       ============================================================ -->
+  <view wx:if="{{activeTab === 'notifications'}}">
+
+    <!-- 通知统计 -->
+    <view class="notification-header" wx:if="{{!loading}}">
+      <text class="notification-header__count">共 {{total}} 条通知</text>
+      <view class="notification-header__badge" wx:if="{{unreadCount > 0}}">
+        <text class="notification-header__badge-text">{{unreadCount}} 条未读</text>
+      </view>
+    </view>
+
+    <!-- 骨架屏 -->
+    <loading-skeleton wx:if="{{loading}}" mode="list" rows="6" />
+
+    <!-- 消息列表 -->
+    <view class="message-list" wx:elif="{{messageList.length > 0}}">
+      <view class="message-card fade-in {{!item.is_read ? 'message-card--unread' : ''}}"
+            wx:for="{{messageList}}"
+            wx:key="id"
+            data-message="{{item}}"
+            bindtap="onMessageTap">
+
+        <!-- 未读指示点 -->
+        <view class="message-card__dot" wx:if="{{!item.is_read}}"></view>
+
+        <!-- 类型图标 -->
+        <view class="message-card__icon-wrap">
+          <text class="message-card__icon">{{item.typeIcon}}</text>
+        </view>
+
+        <!-- 消息内容区 -->
+        <view class="message-card__content">
+          <!-- 标题行 -->
+          <view class="message-card__title-row">
+            <text class="message-card__title text-ellipsis {{!item.is_read ? 'message-card__title--unread' : ''}}">{{item.title}}</text>
+            <text class="message-card__time">{{item.relativeTime}}</text>
+          </view>
+
+          <!-- 内容摘要 -->
+          <text class="message-card__summary text-ellipsis-2">{{item.contentSummary}}</text>
+
+          <!-- 类型标签 -->
+          <view class="message-card__meta">
+            <view class="message-card__type-tag">
+              <text class="message-card__type-text">{{item.typeText}}</text>
+            </view>
+            <view class="message-card__arrow" wx:if="{{item.ref_type && item.ref_id}}">
+              <text class="message-card__arrow-icon">›</text>
+            </view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 加载更多 -->
+      <view class="load-more" wx:if="{{loadingMore}}">
+        <view class="load-more__spinner"></view>
+        <text class="load-more__text">加载中...</text>
+      </view>
+      <view class="load-more" wx:elif="{{!hasMore}}">
+        <text class="load-more__text load-more__text--end">— 已加载全部消息 —</text>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <empty-state
+      wx:elif="{{!loading && messageList.length === 0}}"
+      icon="message"
+      title="暂无通知"
+      description="您还没有收到任何通知消息，业务动态将在这里展示" />
+  </view>
+
+</view>

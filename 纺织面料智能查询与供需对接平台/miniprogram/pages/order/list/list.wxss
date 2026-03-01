@@ -1,0 +1,232 @@
+/**
+ * pages/order/list/list.wxss - 订单列表页面样式
+ * 使用全局设计系统变量
+ * 需求: 7.4, 10.3
+ */
+
+/* ============================================================
+   页面容器
+   ============================================================ */
+
+.page-container {
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+  padding-bottom: 40rpx;
+}
+
+/* ============================================================
+   状态筛选 Tab 栏
+   ============================================================ */
+
+.status-tabs {
+  background-color: var(--color-bg-card);
+  border-bottom: 2rpx solid var(--color-divider);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.status-tabs__scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+
+.status-tabs__inner {
+  display: flex;
+  flex-direction: row;
+  padding: 0 var(--spacing-sm);
+}
+
+.status-tabs__item {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-lg);
+  flex-shrink: 0;
+  transition: all 0.3s ease;
+}
+
+.status-tabs__text {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-normal);
+  transition: color 0.3s ease, font-weight 0.3s ease;
+}
+
+.status-tabs__item--active .status-tabs__text {
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
+}
+
+.status-tabs__indicator {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 48rpx;
+  height: 6rpx;
+  border-radius: var(--radius-round);
+  background-color: var(--color-primary);
+  animation: tabIndicatorIn 0.25s ease-out;
+}
+
+@keyframes tabIndicatorIn {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+  to {
+    width: 48rpx;
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+   订单卡片列表
+   ============================================================ */
+
+.order-list {
+  padding: var(--spacing-sm) var(--spacing-md);
+}
+
+.order-card {
+  background-color: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-sm);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.order-card:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-md);
+}
+
+/* 卡片头部 */
+.order-card__header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-sm);
+  border-bottom: 2rpx solid var(--color-divider);
+}
+
+.order-card__no {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  letter-spacing: 1rpx;
+}
+
+/* 卡片内容 */
+.order-card__body {
+  margin-bottom: var(--spacing-md);
+}
+
+.order-card__info {
+  display: flex;
+  flex-direction: column;
+}
+
+.order-card__summary {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+  margin-bottom: var(--spacing-sm);
+  max-width: 100%;
+}
+
+.order-card__counterparty {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+  max-width: 100%;
+}
+
+.order-card__amount-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.order-card__amount-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.order-card__amount {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent);
+}
+
+/* 卡片底部 */
+.order-card__footer {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: var(--spacing-sm);
+  border-top: 2rpx solid var(--color-divider);
+}
+
+.order-card__time {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-placeholder);
+}
+
+.order-card__arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40rpx;
+  height: 40rpx;
+}
+
+.order-card__arrow-icon {
+  font-size: var(--font-size-xl);
+  color: var(--color-text-placeholder);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+
+/* ============================================================
+   加载更多
+   ============================================================ */
+
+.load-more {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg) 0;
+}
+
+.load-more__spinner {
+  width: 36rpx;
+  height: 36rpx;
+  border: 4rpx solid var(--color-divider);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  margin-right: var(--spacing-sm);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.load-more__text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+.load-more__text--end {
+  color: var(--color-text-placeholder);
+}

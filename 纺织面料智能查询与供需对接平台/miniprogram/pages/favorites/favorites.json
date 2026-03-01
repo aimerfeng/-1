@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "我的收藏",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "fabric-card": "/components/fabric-card/fabric-card",
+    "loading-skeleton": "/components/loading-skeleton/loading-skeleton",
+    "empty-state": "/components/empty-state/empty-state"
+  }
+}

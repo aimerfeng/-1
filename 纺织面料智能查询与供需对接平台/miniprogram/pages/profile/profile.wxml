@@ -1,0 +1,246 @@
+<!--
+  pages/profile/profile.wxml - 个人中心页面
+  需求: 2.2 采购方功能入口, 2.3 供应商功能入口, 2.4 管理员功能入口, 9.1 个人信息编辑
+-->
+
+<view class="profile-page page-fade-in">
+  <!-- 骨架屏 -->
+  <loading-skeleton wx:if="{{loading}}" mode="detail" />
+
+  <!-- 未登录状态 -->
+  <view class="not-logged-in fade-in" wx:elif="{{!isLoggedIn}}">
+    <view class="empty-avatar-wrap">
+      <view class="empty-avatar">
+        <text class="empty-avatar-icon">👤</text>
+      </view>
+    </view>
+    <text class="not-logged-text">您还未登录</text>
+    <text class="not-logged-hint">登录后可管理个人信息和使用更多功能</text>
+    <navigator url="/pages/login/login" class="btn-login-nav">
+      <view class="btn-login">立即登录</view>
+    </navigator>
+  </view>
+
+  <!-- 已登录内容 -->
+  <block wx:else>
+    <!-- 用户信息头部 -->
+    <view class="profile-header fade-in">
+      <view class="header-bg-gradient"></view>
+      <view class="header-content">
+        <view class="avatar-section">
+          <view class="avatar-wrap" bindtap="onAvatarTap">
+            <image
+              wx:if="{{userInfo.avatarUrl}}"
+              class="avatar-img"
+              src="{{userInfo.avatarUrl}}"
+              mode="aspectFill"
+            />
+            <view wx:else class="avatar-placeholder">
+              <text class="avatar-text">{{avatarLetter}}</text>
+            </view>
+          </view>
+          <view class="user-meta">
+            <view class="user-name-row">
+              <text class="user-name">{{userInfo.contact_name || userInfo.phone || '用户'}}</text>
+              <status-tag
+                status="{{userInfo.certification_status || ''}}"
+                text="{{certStatusText}}"
+                size="small"
+              />
+            </view>
+            <view class="user-role-row">
+              <view class="role-badge">
+                <text class="role-badge-text">{{roleText}}</text>
+              </view>
+              <text class="user-company" wx:if="{{userInfo.company_name}}">{{userInfo.company_name}}</text>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 个人信息卡片 -->
+    <view class="info-card slide-up">
+      <view class="card-header">
+        <text class="card-title">个人信息</text>
+        <view class="edit-btn" bindtap="toggleEdit">
+          <text class="edit-btn-text">{{isEditing ? '取消' : '编辑'}}</text>
+        </view>
+      </view>
+
+      <!-- 查看模式 -->
+      <view class="info-list" wx:if="{{!isEditing}}">
+        <view class="info-item">
+          <text class="info-label">公司名称</text>
+          <text class="info-value {{userInfo.company_name ? '' : 'info-empty'}}">{{userInfo.company_name || '未填写'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">联系人</text>
+          <text class="info-value {{userInfo.contact_name ? '' : 'info-empty'}}">{{userInfo.contact_name || '未填写'}}</text>
+        </view>
+        <view class="info-item">
+          <text class="info-label">联系电话</text>
+          <text class="info-value {{userInfo.phone ? '' : 'info-empty'}}">{{userInfo.phone || '未绑定'}}</text>
+        </view>
+        <view class="info-item info-item-last">
+          <text class="info-label">地址</text>
+          <text class="info-value {{userInfo.address ? '' : 'info-empty'}}">{{userInfo.address || '未填写'}}</text>
+        </view>
+      </view>
+
+      <!-- 编辑模式 -->
+      <view class="edit-form" wx:else>
+        <view class="edit-group">
+          <text class="edit-label">公司名称</text>
+          <input
+            class="edit-input"
+            placeholder="请输入公司名称"
+            placeholder-class="edit-placeholder"
+            value="{{editForm.company_name}}"
+            bindinput="onCompanyInput"
+          />
+        </view>
+        <view class="edit-group">
+          <text class="edit-label">联系人</text>
+          <input
+            class="edit-input"
+            placeholder="请输入联系人姓名"
+            placeholder-class="edit-placeholder"
+            value="{{editForm.contact_name}}"
+            bindinput="onContactInput"
+          />
+        </view>
+        <view class="edit-group edit-group-last">
+          <text class="edit-label">地址</text>
+          <textarea
+            class="edit-textarea"
+            placeholder="请输入详细地址"
+            placeholder-class="edit-placeholder"
+            value="{{editForm.address}}"
+            bindinput="onAddressInput"
+            auto-height
+            maxlength="200"
+          />
+        </view>
+        <button
+          class="btn-save {{saving ? 'btn-saving' : ''}}"
+          bindtap="saveProfile"
+          disabled="{{saving}}"
+        >
+          <text wx:if="{{!saving}}">保存修改</text>
+          <view class="loading-dots" wx:else>
+            <view class="dot dot1"></view>
+            <view class="dot dot2"></view>
+            <view class="dot dot3"></view>
+          </view>
+        </button>
+      </view>
+    </view>
+
+    <!-- 功能入口 -->
+    <view class="menu-card slide-up">
+      <view class="card-header">
+        <text class="card-title">常用功能</text>
+      </view>
+
+      <!-- 通用功能入口 -->
+      <view class="menu-grid">
+        <view class="menu-item" bindtap="goToFavorites">
+          <view class="menu-icon-wrap menu-icon-fav">
+            <text class="menu-icon">❤️</text>
+          </view>
+          <text class="menu-text">我的收藏</text>
+        </view>
+
+        <!-- 采购方功能入口 -->
+        <block wx:if="{{userInfo.role === 'buyer'}}">
+          <view class="menu-item" bindtap="goToOrders">
+            <view class="menu-icon-wrap menu-icon-order">
+              <text class="menu-icon">📋</text>
+            </view>
+            <text class="menu-text">我的订单</text>
+          </view>
+          <view class="menu-item" bindtap="goToSamples">
+            <view class="menu-icon-wrap menu-icon-sample">
+              <text class="menu-icon">📦</text>
+            </view>
+            <text class="menu-text">样品申请</text>
+          </view>
+          <view class="menu-item" bindtap="goToDemands">
+            <view class="menu-icon-wrap menu-icon-demand">
+              <text class="menu-icon">📝</text>
+            </view>
+            <text class="menu-text">我的需求</text>
+          </view>
+        </block>
+
+        <!-- 供应商功能入口 -->
+        <block wx:if="{{userInfo.role === 'supplier'}}">
+          <view class="menu-item" bindtap="goToOrders">
+            <view class="menu-icon-wrap menu-icon-order">
+              <text class="menu-icon">📋</text>
+            </view>
+            <text class="menu-text">订单管理</text>
+          </view>
+          <view class="menu-item" bindtap="goToSamples">
+            <view class="menu-icon-wrap menu-icon-sample">
+              <text class="menu-icon">📦</text>
+            </view>
+            <text class="menu-text">样品处理</text>
+          </view>
+          <view class="menu-item" bindtap="goPublishFabric">
+            <view class="menu-icon-wrap menu-icon-publish">
+              <text class="menu-icon">➕</text>
+            </view>
+            <text class="menu-text">发布面料</text>
+          </view>
+          <view class="menu-item" bindtap="goManageFabrics">
+            <view class="menu-icon-wrap menu-icon-fabric">
+              <text class="menu-icon">🧵</text>
+            </view>
+            <text class="menu-text">我的面料</text>
+          </view>
+        </block>
+
+        <!-- 管理员功能入口 -->
+        <block wx:if="{{userInfo.role === 'admin'}}">
+          <view class="menu-item" bindtap="goToAudit">
+            <view class="menu-icon-wrap menu-icon-audit">
+              <text class="menu-icon">✅</text>
+            </view>
+            <text class="menu-text">用户审核</text>
+          </view>
+          <view class="menu-item" bindtap="goToStats">
+            <view class="menu-icon-wrap menu-icon-stats">
+              <text class="menu-icon">📊</text>
+            </view>
+            <text class="menu-text">数据统计</text>
+          </view>
+          <view class="menu-item" bindtap="goToOrders">
+            <view class="menu-icon-wrap menu-icon-order">
+              <text class="menu-icon">📋</text>
+            </view>
+            <text class="menu-text">订单管理</text>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 其他设置 -->
+    <view class="settings-card slide-up">
+      <view class="settings-item" bindtap="goToAbout">
+        <text class="settings-icon">ℹ️</text>
+        <text class="settings-text">关于平台</text>
+        <text class="settings-arrow">›</text>
+      </view>
+      <view class="settings-item settings-item-last" bindtap="handleLogout">
+        <text class="settings-icon">🚪</text>
+        <text class="settings-text text-danger">退出登录</text>
+        <text class="settings-arrow">›</text>
+      </view>
+    </view>
+
+    <!-- 底部安全区域 -->
+    <view class="safe-bottom-spacer"></view>
+  </block>
+</view>

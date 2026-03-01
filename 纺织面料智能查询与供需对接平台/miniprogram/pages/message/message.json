@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "消息中心",
+  "enablePullDownRefresh": true,
+  "backgroundTextStyle": "dark",
+  "usingComponents": {
+    "loading-skeleton": "/components/loading-skeleton/loading-skeleton",
+    "empty-state": "/components/empty-state/empty-state"
+  }
+}

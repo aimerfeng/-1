@@ -1,0 +1,38 @@
+<!--
+  empty-state 空状态组件
+  支持自定义图标、标题、描述和操作按钮
+-->
+
+<view class="empty-state slide-up">
+  <!-- 图标区域 -->
+  <view class="empty-state__icon-wrapper">
+    <!-- 内置 emoji 图标 -->
+    <view class="empty-state__icon-placeholder" wx:if="{{!isCustomIcon}}">
+      <view class="empty-state__icon-circle">
+        <text class="empty-state__icon-emoji">{{iconEmoji || '📭'}}</text>
+      </view>
+    </view>
+    <!-- 自定义图片图标 -->
+    <image
+      wx:else
+      class="empty-state__icon"
+      src="{{iconSrc}}"
+      mode="aspectFit"
+      binderror="onIconError"
+    />
+  </view>
+
+  <!-- 标题 -->
+  <text class="empty-state__title" wx:if="{{title}}">{{title}}</text>
+
+  <!-- 描述 -->
+  <text class="empty-state__description" wx:if="{{description}}">{{description}}</text>
+
+  <!-- 操作按钮 -->
+  <view class="empty-state__action" wx:if="{{actionText}}">
+    <button class="empty-state__btn" bindtap="onActionTap">{{actionText}}</button>
+  </view>
+
+  <!-- 插槽：允许自定义内容 -->
+  <slot></slot>
+</view>

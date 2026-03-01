@@ -1,0 +1,287 @@
+<!--
+  pages/sample/sample.wxml - 样品管理页面
+  采购方视角：样品申请列表、各状态展示、物流跟踪详情
+  供应商视角：待审核列表、审核操作（通过/拒绝 + 拒绝原因输入）
+  需求: 6.5, 10.3
+-->
+
+<view class="page-container">
+
+  <!-- ============================================================
+       页面标题栏
+       ============================================================ -->
+  <view class="page-header">
+    <text class="page-header__title">
+      {{role === 'supplier' ? '样品审核' : '我的样品'}}
+    </text>
+    <text class="page-header__count" wx:if="{{!loading}}">共 {{total}} 条记录</text>
+  </view>
+
+  <!-- ============================================================
+       骨架屏（首次加载时展示）
+       ============================================================ -->
+  <loading-skeleton wx:if="{{loading}}" mode="list" />
+
+  <!-- ============================================================
+       采购方视角 - 样品申请列表
+       ============================================================ -->
+  <view class="sample-list" wx:elif="{{role === 'buyer' && sampleList.length > 0}}">
+    <view class="sample-card fade-in"
+          wx:for="{{sampleList}}"
+          wx:key="id">
+      <!-- 卡片头部：ID + 状态标签 -->
+      <view class="sample-card__header">
+        <text class="sample-card__id">样品单号 #{{item.id}}</text>
+        <status-tag
+          status="{{item.status}}"
+          text="{{statusTextMap[item.status] || item.status}}"
+          size="small" />
+      </view>
+
+      <!-- 卡片内容 -->
+      <view class="sample-card__body">
+        <view class="sample-card__row">
+          <text class="sample-card__label">面料ID</text>
+          <text class="sample-card__value">{{item.fabric_id}}</text>
+        </view>
+        <view class="sample-card__row">
+          <text class="sample-card__label">数量</text>
+          <text class="sample-card__value">{{item.quantity}} 件</text>
+        </view>
+        <view class="sample-card__row">
+          <text class="sample-card__label">收货地址</text>
+          <text class="sample-card__value text-ellipsis">{{item.address}}</text>
+        </view>
+        <view class="sample-card__row" wx:if="{{item.reject_reason}}">
+          <text class="sample-card__label">拒绝原因</text>
+          <text class="sample-card__value sample-card__value--danger">{{item.reject_reason}}</text>
+        </view>
+        <view class="sample-card__row" wx:if="{{item.logistics_no}}">
+          <text class="sample-card__label">物流单号</text>
+          <text class="sample-card__value sample-card__value--link">{{item.logistics_no}}</text>
+        </view>
+      </view>
+
+      <!-- 卡片底部：时间 + 操作 -->
+      <view class="sample-card__footer">
+        <text class="sample-card__time">{{item.created_at}}</text>
+        <view class="sample-card__actions">
+          <!-- 运输中/已签收状态可查看物流 -->
+          <view class="sample-card__action-btn sample-card__action-btn--primary"
+                wx:if="{{item.status === 'shipping' || item.status === 'received'}}"
+                data-sample="{{item}}"
+                bindtap="onLogisticsTap">
+            <text>查看物流</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多提示 -->
+    <view class="load-more" wx:if="{{loadingMore}}">
+      <view class="load-more__spinner"></view>
+      <text class="load-more__text">加载中...</text>
+    </view>
+    <view class="load-more" wx:elif="{{!hasMore}}">
+      <text class="load-more__text load-more__text--end">— 已加载全部记录 —</text>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       供应商视角 - 样品审核列表
+       ============================================================ -->
+  <view class="sample-list" wx:elif="{{role === 'supplier' && sampleList.length > 0}}">
+    <view class="sample-card fade-in"
+          wx:for="{{sampleList}}"
+          wx:key="id">
+      <!-- 卡片头部：ID + 状态标签 -->
+      <view class="sample-card__header">
+        <text class="sample-card__id">样品单号 #{{item.id}}</text>
+        <status-tag
+          status="{{item.status}}"
+          text="{{statusTextMap[item.status] || item.status}}"
+          size="small" />
+      </view>
+
+      <!-- 卡片内容 -->
+      <view class="sample-card__body">
+        <view class="sample-card__row">
+          <text class="sample-card__label">面料ID</text>
+          <text class="sample-card__value">{{item.fabric_id}}</text>
+        </view>
+        <view class="sample-card__row">
+          <text class="sample-card__label">采购方ID</text>
+          <text class="sample-card__value">{{item.buyer_id}}</text>
+        </view>
+        <view class="sample-card__row">
+          <text class="sample-card__label">数量</text>
+          <text class="sample-card__value">{{item.quantity}} 件</text>
+        </view>
+        <view class="sample-card__row">
+          <text class="sample-card__label">收货地址</text>
+          <text class="sample-card__value text-ellipsis">{{item.address}}</text>
+        </view>
+        <view class="sample-card__row" wx:if="{{item.reject_reason}}">
+          <text class="sample-card__label">拒绝原因</text>
+          <text class="sample-card__value sample-card__value--danger">{{item.reject_reason}}</text>
+        </view>
+      </view>
+
+      <!-- 卡片底部：时间 + 操作 -->
+      <view class="sample-card__footer">
+        <text class="sample-card__time">{{item.created_at}}</text>
+        <view class="sample-card__actions">
+          <!-- 待审核状态可审核 -->
+          <view class="sample-card__action-btn sample-card__action-btn--primary"
+                wx:if="{{item.status === 'pending'}}"
+                data-sample="{{item}}"
+                bindtap="onReviewTap">
+            <text>审核</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多提示 -->
+    <view class="load-more" wx:if="{{loadingMore}}">
+      <view class="load-more__spinner"></view>
+      <text class="load-more__text">加载中...</text>
+    </view>
+    <view class="load-more" wx:elif="{{!hasMore}}">
+      <text class="load-more__text load-more__text--end">— 已加载全部记录 —</text>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       空状态
+       ============================================================ -->
+  <empty-state
+    wx:elif="{{!loading && sampleList.length === 0}}"
+    icon="order"
+    title="{{role === 'supplier' ? '暂无样品审核' : '暂无样品申请'}}"
+    description="{{role === 'supplier' ? '目前没有需要审核的样品申请' : '您还没有提交过样品申请，可在面料详情页申请样品'}}" />
+
+  <!-- ============================================================
+       供应商审核弹窗
+       ============================================================ -->
+  <view class="modal-mask {{reviewModalVisible ? 'modal-mask--visible' : ''}}"
+        bindtap="closeReviewModal">
+    <view class="modal-content slide-up {{reviewModalVisible ? 'modal-content--visible' : ''}}"
+          catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-header__title">审核样品申请</text>
+        <view class="modal-header__close" bindtap="closeReviewModal">
+          <text>✕</text>
+        </view>
+      </view>
+
+      <view class="modal-body" wx:if="{{reviewingSample}}">
+        <view class="modal-info">
+          <view class="modal-info__row">
+            <text class="modal-info__label">样品单号</text>
+            <text class="modal-info__value">#{{reviewingSample.id}}</text>
+          </view>
+          <view class="modal-info__row">
+            <text class="modal-info__label">面料ID</text>
+            <text class="modal-info__value">{{reviewingSample.fabric_id}}</text>
+          </view>
+          <view class="modal-info__row">
+            <text class="modal-info__label">数量</text>
+            <text class="modal-info__value">{{reviewingSample.quantity}} 件</text>
+          </view>
+          <view class="modal-info__row">
+            <text class="modal-info__label">收货地址</text>
+            <text class="modal-info__value">{{reviewingSample.address}}</text>
+          </view>
+        </view>
+
+        <view class="modal-reject-section">
+          <text class="modal-reject-section__label">拒绝原因（拒绝时必填）</text>
+          <textarea class="modal-reject-section__input"
+                    placeholder="请输入拒绝原因..."
+                    value="{{rejectReason}}"
+                    bindinput="onRejectReasonInput"
+                    maxlength="200"
+                    auto-height />
+        </view>
+      </view>
+
+      <view class="modal-footer">
+        <button class="modal-footer__btn modal-footer__btn--reject"
+                bindtap="onReject"
+                disabled="{{reviewLoading}}">
+          拒绝
+        </button>
+        <button class="modal-footer__btn modal-footer__btn--approve"
+                bindtap="onApprove"
+                disabled="{{reviewLoading}}">
+          {{reviewLoading ? '处理中...' : '通过'}}
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       物流详情弹窗（采购方）
+       ============================================================ -->
+  <view class="modal-mask {{logisticsModalVisible ? 'modal-mask--visible' : ''}}"
+        bindtap="closeLogisticsModal">
+    <view class="modal-content slide-up {{logisticsModalVisible ? 'modal-content--visible' : ''}}"
+          catchtap="preventBubble">
+      <view class="modal-header">
+        <text class="modal-header__title">物流跟踪</text>
+        <view class="modal-header__close" bindtap="closeLogisticsModal">
+          <text>✕</text>
+        </view>
+      </view>
+
+      <view class="modal-body">
+        <!-- 物流加载中 -->
+        <view class="logistics-loading" wx:if="{{logisticsLoading}}">
+          <view class="logistics-loading__spinner"></view>
+          <text class="logistics-loading__text">正在查询物流信息...</text>
+        </view>
+
+        <!-- 物流信息 -->
+        <view class="logistics-detail" wx:elif="{{logisticsData}}">
+          <view class="logistics-detail__header">
+            <text class="logistics-detail__label">物流单号</text>
+            <text class="logistics-detail__no">{{logisticsData.logistics_no}}</text>
+          </view>
+
+          <!-- 物流时间线 -->
+          <view class="logistics-timeline" wx:if="{{logisticsData.logistics && logisticsData.logistics.traces}}">
+            <view class="logistics-timeline__item {{index === 0 ? 'logistics-timeline__item--active' : ''}}"
+                  wx:for="{{logisticsData.logistics.traces}}"
+                  wx:key="index">
+              <view class="logistics-timeline__dot"></view>
+              <view class="logistics-timeline__line" wx:if="{{index < logisticsData.logistics.traces.length - 1}}"></view>
+              <view class="logistics-timeline__content">
+                <text class="logistics-timeline__desc">{{item.description}}</text>
+                <text class="logistics-timeline__time">{{item.time}}</text>
+              </view>
+            </view>
+          </view>
+
+          <!-- 物流状态简要（无详细轨迹时） -->
+          <view class="logistics-status" wx:elif="{{logisticsData.logistics}}">
+            <text class="logistics-status__text">
+              当前状态：{{logisticsData.logistics.status || '查询中'}}
+            </text>
+          </view>
+
+          <!-- 无物流信息 -->
+          <view class="logistics-empty" wx:else>
+            <text class="logistics-empty__text">暂无物流轨迹信息</text>
+          </view>
+        </view>
+
+        <!-- 查询失败 -->
+        <view class="logistics-empty" wx:else>
+          <text class="logistics-empty__text">物流信息查询失败，请稍后重试</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+</view>

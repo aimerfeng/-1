@@ -1,0 +1,145 @@
+<!--
+  pages/home/home.wxml - 首页
+  顶部搜索栏、功能入口网格（角色动态展示）、最新匹配推荐列表
+  需求: 2.2 采购方功能入口, 2.3 供应商功能入口, 2.4 管理员功能入口, 10.2 骨架屏
+-->
+
+<view class="home-page page-fade-in">
+
+  <!-- ============================================================
+       骨架屏（首次加载时展示）
+       ============================================================ -->
+  <view wx:if="{{loading}}" class="skeleton-wrapper">
+    <!-- 搜索栏骨架 -->
+    <view class="skeleton-search">
+      <view class="skeleton-search-bar skeleton-animate"></view>
+    </view>
+    <!-- 功能入口骨架 -->
+    <view class="skeleton-entries">
+      <view class="skeleton-entry" wx:for="{{4}}" wx:key="*this">
+        <view class="skeleton-entry-icon skeleton-animate"></view>
+        <view class="skeleton-entry-text skeleton-animate"></view>
+      </view>
+    </view>
+    <!-- 推荐列表骨架 -->
+    <view class="skeleton-section">
+      <view class="skeleton-section-title skeleton-animate"></view>
+      <view class="skeleton-cards">
+        <view class="skeleton-card" wx:for="{{4}}" wx:key="*this">
+          <view class="skeleton-card-img skeleton-animate"></view>
+          <view class="skeleton-card-info">
+            <view class="skeleton-card-name skeleton-animate"></view>
+            <view class="skeleton-card-param skeleton-animate"></view>
+            <view class="skeleton-card-price skeleton-animate"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       页面内容（加载完成后展示）
+       ============================================================ -->
+  <block wx:else>
+
+    <!-- ============================================================
+         顶部搜索栏
+         ============================================================ -->
+    <view class="search-section fade-in">
+      <view class="search-bar" bindtap="onSearchTap" hover-class="search-bar--active">
+        <text class="search-bar__icon">🔍</text>
+        <text class="search-bar__placeholder">搜索面料名称、成分、工艺...</text>
+      </view>
+    </view>
+
+    <!-- ============================================================
+         功能入口网格
+         ============================================================ -->
+    <view class="entries-section fade-in">
+      <view class="entries-card">
+        <view class="entries-grid">
+          <view
+            class="entry-item"
+            wx:for="{{functionEntries}}"
+            wx:key="key"
+            data-entry="{{item}}"
+            bindtap="onEntryTap"
+            hover-class="entry-item--active"
+          >
+            <view class="entry-icon-wrap entry-icon-{{item.key}}">
+              <text class="entry-icon">{{item.icon}}</text>
+            </view>
+            <text class="entry-label">{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- ============================================================
+         未登录提示
+         ============================================================ -->
+    <view class="login-prompt slide-up" wx:if="{{!isLoggedIn}}">
+      <view class="login-prompt__card">
+        <view class="login-prompt__icon">👋</view>
+        <view class="login-prompt__text">
+          <text class="login-prompt__title">欢迎使用纺织面料平台</text>
+          <text class="login-prompt__desc">登录后可获取个性化推荐和更多功能</text>
+        </view>
+        <view class="login-prompt__btn" bindtap="goLogin" hover-class="login-prompt__btn--active">
+          <text class="login-prompt__btn-text">立即登录</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- ============================================================
+         最新匹配推荐列表
+         ============================================================ -->
+    <view class="recommend-section slide-up" wx:if="{{isLoggedIn}}">
+      <view class="section-header">
+        <view class="section-header__left">
+          <view class="section-header__indicator"></view>
+          <text class="section-header__title">{{recommendTitle}}</text>
+        </view>
+        <view class="section-header__right" bindtap="onViewMoreTap" wx:if="{{hasRecommend}}">
+          <text class="section-header__more">查看更多</text>
+          <text class="section-header__arrow">›</text>
+        </view>
+      </view>
+
+      <!-- 推荐加载中 -->
+      <view wx:if="{{recommendLoading}}" class="recommend-loading">
+        <loading-skeleton mode="card" cardCount="{{4}}" />
+      </view>
+
+      <!-- 推荐列表 -->
+      <view class="recommend-grid" wx:elif="{{hasRecommend}}">
+        <view class="recommend-item" wx:for="{{recommendList}}" wx:key="id">
+          <!-- 匹配度标签（采购方视角） -->
+          <view class="match-score-tag" wx:if="{{item._matchScore}}">
+            <text class="match-score-text">匹配 {{item._matchScore}}%</text>
+          </view>
+          <fabric-card
+            fabric="{{item}}"
+            mode="card"
+            bind:tap="onFabricTap"
+          />
+        </view>
+      </view>
+
+      <!-- 空状态 -->
+      <empty-state
+        wx:elif="{{!recommendLoading && !hasRecommend}}"
+        title="暂无推荐"
+        description="{{userRole === 'buyer' ? '发布采购需求后将为您智能匹配面料' : '暂无最新面料动态'}}"
+        actionText="{{userRole === 'buyer' ? '发布需求' : '浏览面料'}}"
+        bind:action="onEmptyAction"
+      />
+    </view>
+
+    <!-- ============================================================
+         底部安全区域
+         ============================================================ -->
+    <view class="safe-bottom-spacer"></view>
+
+  </block>
+</view>

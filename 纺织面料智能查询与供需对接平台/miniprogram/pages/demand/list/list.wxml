@@ -1,0 +1,79 @@
+<!--
+  pages/demand/list/list.wxml - 需求列表页面
+  采购方查看自己的需求，供应商浏览所有公开需求
+-->
+
+<view class="page-container page-fade-in">
+
+  <!-- 页面头部 -->
+  <view class="page-header fade-in">
+    <view class="page-header__icon">📋</view>
+    <view class="page-header__info">
+      <text class="page-header__title">{{pageTitle}}</text>
+      <text class="page-header__desc">{{pageDesc}}</text>
+    </view>
+    <view class="page-header__count" wx:if="{{total > 0}}">
+      <text class="page-header__count-num">{{total}}</text>
+      <text class="page-header__count-label">条需求</text>
+    </view>
+  </view>
+
+  <!-- 骨架屏 -->
+  <loading-skeleton wx:if="{{loading}}" mode="list" />
+
+  <!-- 需求列表 -->
+  <view class="demand-list" wx:elif="{{demandList.length > 0}}">
+    <view
+      class="demand-card slide-up"
+      wx:for="{{demandList}}"
+      wx:key="id"
+      style="animation-delay: {{index * 0.05}}s"
+      data-id="{{item.id}}"
+      bindtap="onDemandTap"
+    >
+      <!-- 卡片头部：标题 + 状态 -->
+      <view class="demand-card__header">
+        <text class="demand-card__title">{{item.title}}</text>
+        <view class="demand-card__status {{item._statusClass}}">
+          <text class="demand-card__status-text">{{item._statusText}}</text>
+        </view>
+      </view>
+
+      <!-- 参数摘要 -->
+      <text class="demand-card__params">{{item._paramSummary}}</text>
+
+      <!-- 底部信息 -->
+      <view class="demand-card__footer">
+        <view class="demand-card__tags">
+          <text class="demand-card__tag demand-card__tag--price" wx:if="{{item._priceText}}">{{item._priceText}}</text>
+          <text class="demand-card__tag" wx:if="{{item._quantityText}}">{{item._quantityText}}</text>
+        </view>
+        <text class="demand-card__time" wx:if="{{item._timeText}}">{{item._timeText}}</text>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{loadingMore}}">
+      <text class="load-more__text">加载中...</text>
+    </view>
+    <view class="load-more" wx:elif="{{!hasMore}}">
+      <text class="load-more__text">没有更多了</text>
+    </view>
+  </view>
+
+  <!-- 空状态 -->
+  <empty-state
+    wx:elif="{{!loading && demandList.length === 0}}"
+    icon="order"
+    title="{{userRole === 'buyer' ? '暂无需求' : '暂无公开需求'}}"
+    description="{{userRole === 'buyer' ? '您还没有发布过采购需求' : '目前没有采购方发布的需求'}}"
+    actionText="{{userRole === 'buyer' ? '发布需求' : ''}}"
+    bind:action="goPublish"
+  />
+
+  <!-- 采购方浮动发布按钮 -->
+  <view class="fab-btn" wx:if="{{userRole === 'buyer' && !loading}}" bindtap="goPublish">
+    <text class="fab-btn__icon">+</text>
+  </view>
+
+</view>

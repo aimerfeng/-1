@@ -1,0 +1,432 @@
+/**
+ * pages/fabric/compare/compare.wxss - 面料对比页面样式
+ * 使用全局设计系统变量
+ * 需求: 4.5 - 面料参数对比表格，差异高亮
+ */
+
+/* ============================================================
+   页面入场动效
+   ============================================================ */
+
+.compare-page {
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+  padding-bottom: var(--spacing-xl);
+}
+
+.compare-page--ready {
+  opacity: 1;
+}
+
+/* ============================================================
+   错误状态
+   ============================================================ */
+
+.error-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  background-color: var(--color-bg-page);
+  padding: var(--spacing-xl);
+}
+
+.error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.error-icon {
+  font-size: 120rpx;
+  margin-bottom: var(--spacing-lg);
+}
+
+.error-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.error-desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xl);
+}
+
+.error-retry-btn {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-round);
+  padding: 0 var(--spacing-xl);
+  height: 80rpx;
+  line-height: 80rpx;
+  border: none;
+}
+
+.error-retry-btn:active {
+  background-color: var(--color-primary-dark);
+}
+
+/* ============================================================
+   对比页头部
+   ============================================================ */
+
+.compare-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md) var(--spacing-md) var(--spacing-sm);
+}
+
+.compare-header__title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.compare-header__count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================
+   对比表格容器
+   ============================================================ */
+
+.compare-table {
+  background-color: var(--color-bg-card);
+  margin: 0 var(--spacing-sm);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* ============================================================
+   表头行（面料图片 + 名称）
+   ============================================================ */
+
+.table-header {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 2rpx solid var(--color-divider);
+  background-color: var(--color-bg-card);
+}
+
+.table-header-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-primary-bg);
+}
+
+.table-header-label .fixed-col__text {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-primary);
+}
+
+/* ============================================================
+   固定左列（参数标签列）
+   ============================================================ */
+
+.table-fixed-col {
+  width: 160rpx;
+  min-width: 160rpx;
+  flex-shrink: 0;
+  padding: var(--spacing-sm) var(--spacing-sm);
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: var(--color-bg-page);
+  border-right: 2rpx solid var(--color-divider);
+}
+
+.fixed-col__text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+}
+
+/* ============================================================
+   横向滚动区域
+   ============================================================ */
+
+.table-scroll-area {
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.table-scroll-row {
+  display: inline-flex;
+  flex-direction: row;
+}
+
+/* ============================================================
+   面料列（表头中的每个面料）
+   ============================================================ */
+
+.table-fabric-col {
+  width: 240rpx;
+  min-width: 240rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--spacing-md) var(--spacing-sm);
+  position: relative;
+  border-right: 2rpx solid var(--color-divider);
+}
+
+.table-fabric-col:last-child {
+  border-right: none;
+}
+
+/* 移除按钮 */
+.fabric-remove-btn {
+  position: absolute;
+  top: var(--spacing-xs);
+  right: var(--spacing-xs);
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background-color: rgba(0, 0, 0, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5;
+  transition: background-color 0.2s ease;
+}
+
+.fabric-remove-btn:active {
+  background-color: rgba(0, 0, 0, 0.5);
+}
+
+.fabric-remove-icon {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+}
+
+/* 面料缩略图 */
+.fabric-thumb {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  margin-bottom: var(--spacing-xs);
+  background-color: var(--color-bg-page);
+}
+
+.fabric-thumb__img {
+  width: 100%;
+  height: 100%;
+}
+
+.fabric-thumb__placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-page);
+}
+
+.fabric-thumb__placeholder-icon {
+  font-size: 56rpx;
+}
+
+/* 面料名称 */
+.fabric-col-name {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  text-align: center;
+  max-width: 220rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
+   参数行
+   ============================================================ */
+
+.table-body {
+  max-height: calc(100vh - 400rpx);
+}
+
+.table-row {
+  display: flex;
+  flex-direction: row;
+  border-bottom: 2rpx solid var(--color-divider);
+  min-height: 88rpx;
+  transition: background-color 0.3s ease;
+}
+
+.table-row:last-child {
+  border-bottom: none;
+}
+
+/* 差异行高亮背景 */
+.table-row--diff {
+  background-color: var(--color-accent-bg);
+}
+
+.table-row--diff .table-fixed-col {
+  background-color: var(--color-accent-bg);
+}
+
+/* ============================================================
+   参数标签单元格
+   ============================================================ */
+
+.table-label-cell {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.label-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: var(--font-weight-medium);
+  flex: 1;
+}
+
+/* 差异指示器 */
+.diff-indicator {
+  margin-left: 4rpx;
+  flex-shrink: 0;
+}
+
+.diff-indicator__dot {
+  font-size: 16rpx;
+  color: var(--color-accent);
+  line-height: 1;
+}
+
+/* ============================================================
+   参数值单元格
+   ============================================================ */
+
+.table-value-cell {
+  width: 240rpx;
+  min-width: 240rpx;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-sm);
+  border-right: 2rpx solid var(--color-divider);
+  white-space: normal;
+  word-break: break-all;
+  text-align: center;
+}
+
+.table-value-cell:last-child {
+  border-right: none;
+}
+
+/* 差异值单元格高亮 */
+.table-value-cell--diff {
+  position: relative;
+}
+
+.table-value-cell--diff::after {
+  content: '';
+  position: absolute;
+  left: 4rpx;
+  right: 4rpx;
+  bottom: 4rpx;
+  height: 4rpx;
+  background-color: var(--color-accent);
+  border-radius: 2rpx;
+  opacity: 0.6;
+}
+
+/* 参数值文本 */
+.value-text {
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  font-weight: var(--font-weight-medium);
+}
+
+.value-text--price {
+  color: var(--color-danger);
+  font-weight: var(--font-weight-bold);
+}
+
+.value-text--empty {
+  color: var(--color-text-placeholder);
+  font-weight: var(--font-weight-normal);
+}
+
+.value-unit {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-left: 4rpx;
+}
+
+/* ============================================================
+   图例说明
+   ============================================================ */
+
+.legend-section {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  padding: var(--spacing-lg) var(--spacing-md) var(--spacing-sm);
+}
+
+.legend-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin: 0 var(--spacing-md);
+}
+
+.legend-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border-radius: 50%;
+  margin-right: var(--spacing-xs);
+}
+
+.legend-dot--diff {
+  background-color: var(--color-accent);
+}
+
+.legend-dot--same {
+  background-color: var(--color-border);
+}
+
+.legend-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+/* ============================================================
+   操作提示
+   ============================================================ */
+
+.tip-section {
+  padding: var(--spacing-sm) var(--spacing-md) var(--spacing-lg);
+  text-align: center;
+}
+
+.tip-text {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-placeholder);
+  line-height: var(--line-height-loose);
+}

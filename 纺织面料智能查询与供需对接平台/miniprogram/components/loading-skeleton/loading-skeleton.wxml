@@ -1,0 +1,42 @@
+<!--
+  loading-skeleton 骨架屏组件
+  支持模式: list（列表）、card（卡片）、detail（详情）
+-->
+
+<!-- list 模式：列表骨架 -->
+<view class="skeleton skeleton-list fade-in" wx:if="{{mode === 'list'}}">
+  <view class="skeleton-item" wx:for="{{rowArray}}" wx:key="*this">
+    <view class="skeleton-avatar {{animate ? 'skeleton-animate' : ''}}" wx:if="{{avatar}}"></view>
+    <view class="skeleton-content">
+      <view class="skeleton-title {{animate ? 'skeleton-animate' : ''}}"></view>
+      <view class="skeleton-desc {{animate ? 'skeleton-animate' : ''}}"></view>
+    </view>
+  </view>
+</view>
+
+<!-- card 模式：卡片网格骨架 -->
+<view class="skeleton skeleton-card fade-in" wx:elif="{{mode === 'card'}}">
+  <view class="skeleton-card-grid">
+    <view class="skeleton-card-item" wx:for="{{cardArray}}" wx:key="*this">
+      <view class="skeleton-card-image {{animate ? 'skeleton-animate' : ''}}"></view>
+      <view class="skeleton-card-info">
+        <view class="skeleton-card-name {{animate ? 'skeleton-animate' : ''}}"></view>
+        <view class="skeleton-card-param {{animate ? 'skeleton-animate' : ''}}"></view>
+        <view class="skeleton-card-price {{animate ? 'skeleton-animate' : ''}}"></view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- detail 模式：详情页骨架 -->
+<view class="skeleton skeleton-detail fade-in" wx:elif="{{mode === 'detail'}}">
+  <view class="skeleton-detail-banner {{animate ? 'skeleton-animate' : ''}}"></view>
+  <view class="skeleton-detail-body">
+    <view class="skeleton-detail-title {{animate ? 'skeleton-animate' : ''}}"></view>
+    <view class="skeleton-detail-tag-row">
+      <view class="skeleton-detail-tag {{animate ? 'skeleton-animate' : ''}}"></view>
+      <view class="skeleton-detail-tag {{animate ? 'skeleton-animate' : ''}}"></view>
+    </view>
+    <view class="skeleton-detail-line {{animate ? 'skeleton-animate' : ''}}" wx:for="{{5}}" wx:key="*this" style="width: {{80 - index * 10}}%"></view>
+  </view>
+</view>

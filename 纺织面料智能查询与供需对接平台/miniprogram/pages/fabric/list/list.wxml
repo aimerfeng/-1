@@ -1,0 +1,199 @@
+<!--
+  pages/fabric/list/list.wxml - 面料列表页面
+  需求: 4.1 多条件筛选, 4.2 列表展示, 10.2 骨架屏, 10.3 分页加载
+-->
+
+<view class="page-container page-fade-in">
+
+  <!-- ============================================================
+       顶部操作栏：筛选按钮 + 结果统计
+       ============================================================ -->
+  <view class="toolbar">
+    <view class="toolbar__left">
+      <view class="toolbar__filter-btn {{hasActiveFilters ? 'toolbar__filter-btn--active' : ''}}"
+            bindtap="toggleFilter">
+        <text class="toolbar__filter-icon">⚙</text>
+        <text class="toolbar__filter-text">筛选</text>
+        <view class="toolbar__filter-dot" wx:if="{{hasActiveFilters}}"></view>
+      </view>
+    </view>
+    <view class="toolbar__right">
+      <text class="toolbar__count" wx:if="{{!loading}}">共 {{total}} 个面料</text>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       筛选面板（遮罩 + 滑出面板）
+       ============================================================ -->
+  <view class="filter-mask {{filterVisible ? 'filter-mask--visible' : ''}}"
+        bindtap="closeFilter">
+    <view class="filter-panel {{filterVisible ? 'filter-panel--visible' : ''}}"
+          catchtap="preventBubble">
+
+      <view class="filter-panel__header">
+        <text class="filter-panel__title">筛选条件</text>
+      </view>
+
+      <scroll-view scroll-y class="filter-panel__body">
+
+        <!-- 成分下拉 -->
+        <view class="filter-group">
+          <text class="filter-group__label">成分</text>
+          <picker mode="selector"
+                  range="{{compositionOptions}}"
+                  value="{{compositionIndex}}"
+                  bindchange="onCompositionChange">
+            <view class="filter-group__picker">
+              <text class="filter-group__picker-text {{filters.composition ? '' : 'filter-group__picker-text--placeholder'}}">
+                {{filters.composition || '请选择成分'}}
+              </text>
+              <text class="filter-group__picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+
+        <!-- 工艺下拉 -->
+        <view class="filter-group">
+          <text class="filter-group__label">工艺</text>
+          <picker mode="selector"
+                  range="{{craftOptions}}"
+                  value="{{craftIndex}}"
+                  bindchange="onCraftChange">
+            <view class="filter-group__picker">
+              <text class="filter-group__picker-text {{filters.craft ? '' : 'filter-group__picker-text--placeholder'}}">
+                {{filters.craft || '请选择工艺'}}
+              </text>
+              <text class="filter-group__picker-arrow">▼</text>
+            </view>
+          </picker>
+        </view>
+
+        <!-- 价格区间 -->
+        <view class="filter-group">
+          <text class="filter-group__label">价格区间（元/米）</text>
+          <view class="filter-group__range">
+            <input class="filter-group__range-input"
+                   type="digit"
+                   placeholder="最低价"
+                   value="{{filters.priceMin}}"
+                   bindinput="onPriceMinInput" />
+            <text class="filter-group__range-separator">—</text>
+            <input class="filter-group__range-input"
+                   type="digit"
+                   placeholder="最高价"
+                   value="{{filters.priceMax}}"
+                   bindinput="onPriceMaxInput" />
+          </view>
+        </view>
+
+        <!-- 克重范围 -->
+        <view class="filter-group">
+          <text class="filter-group__label">克重范围（g/m²）</text>
+          <view class="filter-group__range">
+            <input class="filter-group__range-input"
+                   type="digit"
+                   placeholder="最低克重"
+                   value="{{filters.weightMin}}"
+                   bindinput="onWeightMinInput" />
+            <text class="filter-group__range-separator">—</text>
+            <input class="filter-group__range-input"
+                   type="digit"
+                   placeholder="最高克重"
+                   value="{{filters.weightMax}}"
+                   bindinput="onWeightMaxInput" />
+          </view>
+        </view>
+
+        <!-- 颜色选择器 -->
+        <view class="filter-group">
+          <text class="filter-group__label">颜色</text>
+          <view class="filter-group__colors">
+            <view class="color-item {{selectedColor === item.value ? 'color-item--selected' : ''}}"
+                  wx:for="{{colorOptions}}"
+                  wx:key="value"
+                  data-color="{{item.value}}"
+                  bindtap="onColorSelect">
+              <view class="color-item__circle" style="background-color: {{item.hex}};"></view>
+              <text class="color-item__name">{{item.name}}</text>
+            </view>
+          </view>
+        </view>
+
+      </scroll-view>
+
+      <!-- 筛选面板底部按钮 -->
+      <view class="filter-panel__footer">
+        <button class="filter-panel__btn filter-panel__btn--reset"
+                bindtap="resetFilter">重置</button>
+        <button class="filter-panel__btn filter-panel__btn--apply"
+                bindtap="applyFilter">筛选</button>
+      </view>
+
+    </view>
+  </view>
+
+  <!-- ============================================================
+       骨架屏（首次加载时展示）
+       ============================================================ -->
+  <loading-skeleton wx:if="{{loading}}" mode="card" cardCount="{{6}}" />
+
+  <!-- ============================================================
+       面料列表
+       ============================================================ -->
+  <view class="fabric-list" wx:elif="{{fabricList.length > 0}}">
+    <view class="fabric-list__grid">
+      <view class="fabric-list__item"
+            wx:for="{{fabricList}}"
+            wx:key="id">
+        <!-- 对比选择复选框 -->
+        <view class="fabric-list__compare-check"
+              data-id="{{item.id}}"
+              catchtap="onCompareToggle">
+          <view class="compare-checkbox {{compareList.indexOf(item.id) > -1 ? 'compare-checkbox--checked' : ''}}">
+            <text wx:if="{{compareList.indexOf(item.id) > -1}}" class="compare-checkbox__icon">✓</text>
+          </view>
+        </view>
+        <!-- 面料卡片 -->
+        <fabric-card
+          fabric="{{item}}"
+          mode="card"
+          bind:tap="onFabricTap" />
+      </view>
+    </view>
+
+    <!-- 加载更多提示 -->
+    <view class="load-more" wx:if="{{loadingMore}}">
+      <view class="load-more__spinner"></view>
+      <text class="load-more__text">加载中...</text>
+    </view>
+    <view class="load-more" wx:elif="{{!hasMore}}">
+      <text class="load-more__text load-more__text--end">— 已加载全部面料 —</text>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       空状态
+       ============================================================ -->
+  <empty-state
+    wx:elif="{{!loading && fabricList.length === 0}}"
+    icon="search"
+    title="暂无面料数据"
+    description="{{hasActiveFilters ? '未找到符合筛选条件的面料，请调整筛选条件后重试' : '暂时没有面料信息，请稍后再来'}}"
+    actionText="{{hasActiveFilters ? '清除筛选' : ''}}"
+    bind:action="resetFilter" />
+
+  <!-- ============================================================
+       底部对比浮动栏
+       ============================================================ -->
+  <view class="compare-bar safe-bottom {{compareList.length > 0 ? 'compare-bar--visible' : ''}}">
+    <view class="compare-bar__info">
+      <text class="compare-bar__count">已选 {{compareList.length}} 个面料</text>
+      <text class="compare-bar__hint">（至少选2个）</text>
+    </view>
+    <button class="compare-bar__btn {{compareList.length >= 2 ? '' : 'compare-bar__btn--disabled'}}"
+            bindtap="goCompare">
+      开始对比
+    </button>
+  </view>
+
+</view>

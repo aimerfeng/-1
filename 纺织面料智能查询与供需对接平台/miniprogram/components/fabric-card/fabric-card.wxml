@@ -1,0 +1,85 @@
+<!--
+  fabric-card 面料卡片组件
+  支持 card（卡片）和 list（列表行）两种布局模式
+-->
+
+<!-- Card 模式 -->
+<view
+  class="fabric-card fabric-card--card slide-up"
+  wx:if="{{mode === 'card'}}"
+  bindtap="onCardTap"
+  hover-class="fabric-card--hover"
+>
+  <!-- 缩略图 -->
+  <view class="fabric-card__image-wrapper">
+    <image
+      class="fabric-card__image"
+      src="{{thumbUrl}}"
+      mode="aspectFill"
+      wx:if="{{thumbUrl}}"
+      binderror="onImageError"
+    />
+    <view class="fabric-card__image-placeholder" wx:else>
+      <text class="fabric-card__image-placeholder-text">暂无图片</text>
+    </view>
+    <!-- 收藏按钮 -->
+    <view
+      class="fabric-card__favorite"
+      wx:if="{{showFavorite}}"
+      catchtap="onFavoriteTap"
+    >
+      <text class="fabric-card__favorite-icon {{isFavorited ? 'fabric-card__favorite-icon--active' : ''}}">{{isFavorited ? '★' : '☆'}}</text>
+    </view>
+  </view>
+
+  <!-- 信息区域 -->
+  <view class="fabric-card__info">
+    <text class="fabric-card__name text-ellipsis">{{fabric.name || '未命名面料'}}</text>
+    <text class="fabric-card__param text-ellipsis">{{fabric.composition || ''}} · {{formattedWeight}}</text>
+    <text class="fabric-card__price">{{formattedPrice}}</text>
+  </view>
+</view>
+
+<!-- List 模式 -->
+<view
+  class="fabric-card fabric-card--list slide-up"
+  wx:elif="{{mode === 'list'}}"
+  bindtap="onCardTap"
+  hover-class="fabric-card--hover"
+>
+  <!-- 缩略图 -->
+  <view class="fabric-card__list-image-wrapper">
+    <image
+      class="fabric-card__list-image"
+      src="{{thumbUrl}}"
+      mode="aspectFill"
+      wx:if="{{thumbUrl}}"
+      binderror="onImageError"
+    />
+    <view class="fabric-card__list-image-placeholder" wx:else>
+      <text class="fabric-card__image-placeholder-text">暂无</text>
+    </view>
+  </view>
+
+  <!-- 信息区域 -->
+  <view class="fabric-card__list-info">
+    <text class="fabric-card__name text-ellipsis">{{fabric.name || '未命名面料'}}</text>
+    <view class="fabric-card__list-params">
+      <text class="fabric-card__param-item">{{fabric.composition || ''}}</text>
+      <text class="fabric-card__param-divider" wx:if="{{fabric.composition && formattedWeight}}">|</text>
+      <text class="fabric-card__param-item">{{formattedWeight}}</text>
+      <text class="fabric-card__param-divider" wx:if="{{formattedWeight && fabric.craft}}">|</text>
+      <text class="fabric-card__param-item" wx:if="{{fabric.craft}}">{{fabric.craft}}</text>
+    </view>
+    <text class="fabric-card__price">{{formattedPrice}}</text>
+  </view>
+
+  <!-- 收藏按钮 -->
+  <view
+    class="fabric-card__list-favorite"
+    wx:if="{{showFavorite}}"
+    catchtap="onFavoriteTap"
+  >
+    <text class="fabric-card__favorite-icon {{isFavorited ? 'fabric-card__favorite-icon--active' : ''}}">{{isFavorited ? '★' : '☆'}}</text>
+  </view>
+</view>

@@ -1,0 +1,12 @@
+<!--
+  status-tag 状态标签组件
+  根据 status 自动映射颜色和文本
+-->
+
+<view
+  class="status-tag status-tag--{{colorType}} status-tag--{{size}} {{round ? 'status-tag--round' : ''}} fade-in"
+  wx:if="{{displayText}}"
+>
+  <view class="status-tag__dot"></view>
+  <text class="status-tag__text">{{displayText}}</text>
+</view>

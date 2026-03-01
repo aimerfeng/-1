@@ -1,0 +1,9 @@
+{
+  "navigationBarTitleText": "纺织面料平台",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "loading-skeleton": "/components/loading-skeleton/loading-skeleton",
+    "empty-state": "/components/empty-state/empty-state",
+    "fabric-card": "/components/fabric-card/fabric-card"
+  }
+}

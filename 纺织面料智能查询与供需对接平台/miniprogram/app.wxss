@@ -1,0 +1,488 @@
+/**
+ * app.wxss - Global styles for the Textile Fabric Platform
+ * Design system: color scheme, typography scale, spacing system
+ * Requirement 10.1: Unified visual design specification
+ */
+
+/* ============================================================
+   CSS Custom Properties (via page-level variables)
+   WeChat Mini Programs do not support :root, so we define
+   reusable values as classes and use page as the scope.
+   ============================================================ */
+
+page {
+  /* -- Primary color palette (macaron / soft pastel theme) -- */
+  --color-primary: #7EB8DA;
+  --color-primary-light: #A8D4EA;
+  --color-primary-dark: #5A9BBE;
+  --color-primary-bg: #EEF6FB;
+
+  /* -- Accent / secondary colors -- */
+  --color-accent: #F2A6B3;
+  --color-accent-light: #F7C4CE;
+  --color-accent-bg: #FDF0F2;
+
+  /* -- Semantic colors -- */
+  --color-success: #8CC9A1;
+  --color-success-bg: #EFF8F2;
+  --color-warning: #F5D08A;
+  --color-warning-bg: #FDF6E8;
+  --color-danger: #E8919A;
+  --color-danger-bg: #FDF0F1;
+  --color-info: #9BBDE0;
+  --color-info-bg: #EEF4FB;
+
+  /* -- Neutral / gray scale -- */
+  --color-text-primary: #4A4A5A;
+  --color-text-secondary: #8E8E9E;
+  --color-text-placeholder: #C5C5D0;
+  --color-text-inverse: #FFFFFF;
+  --color-border: #E8E8F0;
+  --color-divider: #F2F2F8;
+  --color-bg-page: #F8F8FC;
+  --color-bg-card: #FFFFFF;
+  --color-bg-disabled: #F5F5F8;
+
+  /* -- Font size scale (typography hierarchy) -- */
+  --font-size-xs: 20rpx;
+  --font-size-sm: 24rpx;
+  --font-size-base: 28rpx;
+  --font-size-md: 32rpx;
+  --font-size-lg: 36rpx;
+  --font-size-xl: 40rpx;
+  --font-size-xxl: 48rpx;
+  --font-size-title: 44rpx;
+
+  /* -- Font weight -- */
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-bold: 600;
+
+  /* -- Line height -- */
+  --line-height-tight: 1.2;
+  --line-height-normal: 1.5;
+  --line-height-loose: 1.8;
+
+  /* -- Spacing system (4px base unit) -- */
+  --spacing-xs: 8rpx;
+  --spacing-sm: 16rpx;
+  --spacing-md: 24rpx;
+  --spacing-lg: 32rpx;
+  --spacing-xl: 48rpx;
+  --spacing-xxl: 64rpx;
+
+  /* -- Border radius -- */
+  --radius-sm: 8rpx;
+  --radius-md: 12rpx;
+  --radius-lg: 16rpx;
+  --radius-xl: 24rpx;
+  --radius-round: 999rpx;
+
+  /* -- Shadow -- */
+  --shadow-sm: 0 2rpx 8rpx rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8rpx 32rpx rgba(0, 0, 0, 0.12);
+
+  /* -- Apply base styles to page -- */
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue',
+    'PingFang SC', 'Microsoft YaHei', sans-serif;
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-page);
+  line-height: var(--line-height-normal);
+}
+
+/* ============================================================
+   Global Reset & Base Styles
+   ============================================================ */
+
+view, text, image, navigator, button, input, textarea, scroll-view {
+  box-sizing: border-box;
+}
+
+/* ============================================================
+   Typography Utility Classes
+   ============================================================ */
+
+.text-xs { font-size: var(--font-size-xs); }
+.text-sm { font-size: var(--font-size-sm); }
+.text-base { font-size: var(--font-size-base); }
+.text-md { font-size: var(--font-size-md); }
+.text-lg { font-size: var(--font-size-lg); }
+.text-xl { font-size: var(--font-size-xl); }
+.text-xxl { font-size: var(--font-size-xxl); }
+.text-title { font-size: var(--font-size-title); }
+
+.text-primary { color: var(--color-text-primary); }
+.text-secondary { color: var(--color-text-secondary); }
+.text-placeholder { color: var(--color-text-placeholder); }
+.text-accent { color: var(--color-accent); }
+.text-brand { color: var(--color-primary); }
+.text-success { color: var(--color-success); }
+.text-warning { color: var(--color-warning); }
+.text-danger { color: var(--color-danger); }
+
+.font-normal { font-weight: var(--font-weight-normal); }
+.font-medium { font-weight: var(--font-weight-medium); }
+.font-bold { font-weight: var(--font-weight-bold); }
+
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+
+/* Single line text truncation */
+.text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Multi-line text truncation (2 lines) */
+.text-ellipsis-2 {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+/* ============================================================
+   Spacing Utility Classes
+   ============================================================ */
+
+/* Margin */
+.m-xs { margin: var(--spacing-xs); }
+.m-sm { margin: var(--spacing-sm); }
+.m-md { margin: var(--spacing-md); }
+.m-lg { margin: var(--spacing-lg); }
+.m-xl { margin: var(--spacing-xl); }
+
+.mt-xs { margin-top: var(--spacing-xs); }
+.mt-sm { margin-top: var(--spacing-sm); }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); }
+.mt-xl { margin-top: var(--spacing-xl); }
+
+.mb-xs { margin-bottom: var(--spacing-xs); }
+.mb-sm { margin-bottom: var(--spacing-sm); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+.mb-xl { margin-bottom: var(--spacing-xl); }
+
+.ml-xs { margin-left: var(--spacing-xs); }
+.ml-sm { margin-left: var(--spacing-sm); }
+.ml-md { margin-left: var(--spacing-md); }
+
+.mr-xs { margin-right: var(--spacing-xs); }
+.mr-sm { margin-right: var(--spacing-sm); }
+.mr-md { margin-right: var(--spacing-md); }
+
+/* Padding */
+.p-xs { padding: var(--spacing-xs); }
+.p-sm { padding: var(--spacing-sm); }
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+.p-xl { padding: var(--spacing-xl); }
+
+.pt-sm { padding-top: var(--spacing-sm); }
+.pt-md { padding-top: var(--spacing-md); }
+.pt-lg { padding-top: var(--spacing-lg); }
+
+.pb-sm { padding-bottom: var(--spacing-sm); }
+.pb-md { padding-bottom: var(--spacing-md); }
+.pb-lg { padding-bottom: var(--spacing-lg); }
+
+.px-sm { padding-left: var(--spacing-sm); padding-right: var(--spacing-sm); }
+.px-md { padding-left: var(--spacing-md); padding-right: var(--spacing-md); }
+.px-lg { padding-left: var(--spacing-lg); padding-right: var(--spacing-lg); }
+
+.py-sm { padding-top: var(--spacing-sm); padding-bottom: var(--spacing-sm); }
+.py-md { padding-top: var(--spacing-md); padding-bottom: var(--spacing-md); }
+.py-lg { padding-top: var(--spacing-lg); padding-bottom: var(--spacing-lg); }
+
+/* ============================================================
+   Layout Utility Classes
+   ============================================================ */
+
+.flex { display: flex; }
+.flex-column { display: flex; flex-direction: column; }
+.flex-row { display: flex; flex-direction: row; }
+.flex-wrap { flex-wrap: wrap; }
+.flex-1 { flex: 1; }
+.flex-center { display: flex; align-items: center; justify-content: center; }
+.flex-between { display: flex; align-items: center; justify-content: space-between; }
+.flex-around { display: flex; align-items: center; justify-content: space-around; }
+.align-center { align-items: center; }
+.align-start { align-items: flex-start; }
+.align-end { align-items: flex-end; }
+.justify-center { justify-content: center; }
+.justify-end { justify-content: flex-end; }
+
+/* ============================================================
+   Card & Container Styles
+   ============================================================ */
+
+.card {
+  background-color: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  margin: var(--spacing-sm) var(--spacing-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.card-flat {
+  background-color: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin: var(--spacing-xs) var(--spacing-md);
+}
+
+.container {
+  padding: var(--spacing-md);
+}
+
+.section {
+  margin-bottom: var(--spacing-lg);
+}
+
+.section-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-md);
+}
+
+/* ============================================================
+   Button Styles
+   ============================================================ */
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  line-height: 80rpx;
+  height: 80rpx;
+}
+
+.btn-primary:active {
+  background-color: var(--color-primary-dark);
+  opacity: 0.9;
+}
+
+.btn-secondary {
+  background-color: var(--color-bg-card);
+  color: var(--color-primary);
+  border: 2rpx solid var(--color-primary);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  line-height: 76rpx;
+  height: 80rpx;
+}
+
+.btn-secondary:active {
+  background-color: var(--color-primary-bg);
+}
+
+.btn-accent {
+  background-color: var(--color-accent);
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: var(--spacing-sm) var(--spacing-lg);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  text-align: center;
+  line-height: 80rpx;
+  height: 80rpx;
+}
+
+.btn-accent:active {
+  background-color: #D35400;
+  opacity: 0.9;
+}
+
+.btn-block {
+  display: block;
+  width: 100%;
+}
+
+.btn-disabled {
+  background-color: var(--color-bg-disabled);
+  color: var(--color-text-placeholder);
+  pointer-events: none;
+}
+
+/* ============================================================
+   Form Input Styles
+   ============================================================ */
+
+.input {
+  width: 100%;
+  height: 80rpx;
+  padding: 0 var(--spacing-md);
+  border: 2rpx solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  background-color: var(--color-bg-card);
+}
+
+.input-error {
+  border-color: var(--color-danger);
+}
+
+.input-label {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+/* ============================================================
+   Divider
+   ============================================================ */
+
+.divider {
+  height: 2rpx;
+  background-color: var(--color-divider);
+  margin: var(--spacing-md) 0;
+}
+
+/* ============================================================
+   Badge
+   ============================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32rpx;
+  height: 32rpx;
+  padding: 0 8rpx;
+  border-radius: var(--radius-round);
+  background-color: var(--color-danger);
+  color: var(--color-text-inverse);
+  font-size: var(--font-size-xs);
+}
+
+/* ============================================================
+   Animation Keyframes
+   ============================================================ */
+
+/* Page-level fade-in for smooth page transitions */
+.page-fade-in {
+  animation: fadeIn 0.35s ease-in-out;
+}
+
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+.slide-up {
+  animation: slideUp 0.3s ease-out;
+}
+
+/* Staggered slide-up for cards/sections (use with animation-delay) */
+.slide-up-delay-1 { animation: slideUp 0.3s ease-out 0.05s both; }
+.slide-up-delay-2 { animation: slideUp 0.3s ease-out 0.1s both; }
+.slide-up-delay-3 { animation: slideUp 0.3s ease-out 0.15s both; }
+.slide-up-delay-4 { animation: slideUp 0.3s ease-out 0.2s both; }
+
+/* Scale-in for interactive elements (buttons, icons) */
+.scale-in {
+  animation: scaleIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(40rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ============================================================
+   Safe Area & Responsive Utilities
+   Requirement 10.6: All pages adapt to different screen sizes
+   ============================================================ */
+
+/* Bottom safe area for phones with home indicator / notch */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Fixed bottom bar with safe area (for action bars, submit buttons) */
+.fixed-bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--color-bg-card);
+  padding: var(--spacing-sm) var(--spacing-md);
+  padding-bottom: calc(var(--spacing-sm) + env(safe-area-inset-bottom));
+  box-shadow: 0 -2rpx 12rpx rgba(0, 0, 0, 0.06);
+  z-index: 100;
+}
+
+/* Spacer to offset content above a fixed bottom bar */
+.fixed-bottom-spacer {
+  height: calc(120rpx + env(safe-area-inset-bottom));
+}
+
+/* Full-width container that respects horizontal safe areas */
+.safe-horizontal {
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Responsive image that scales within its container */
+.img-responsive {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Ensure content doesn't overflow on small screens */
+.overflow-hidden {
+  overflow: hidden;
+}
+
+.overflow-scroll-x {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Width utilities using rpx for consistent sizing across devices */
+.w-full { width: 100%; }
+.w-half { width: 50%; }
+
+/* Min-height to fill viewport (useful for empty states) */
+.min-h-screen {
+  min-height: 100vh;
+}

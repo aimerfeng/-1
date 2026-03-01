@@ -1,0 +1,178 @@
+/**
+ * fabric-card 面料卡片组件样式
+ * 使用全局设计系统变量
+ */
+
+/* ============================================================
+   通用
+   ============================================================ */
+
+.fabric-card--hover {
+  opacity: 0.85;
+  transform: scale(0.98);
+  transition: all 0.15s ease;
+}
+
+/* ============================================================
+   Card 模式（网格卡片）
+   ============================================================ */
+
+.fabric-card--card {
+  background-color: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.fabric-card__image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 240rpx;
+  overflow: hidden;
+  background-color: var(--color-bg-page);
+}
+
+.fabric-card__image {
+  width: 100%;
+  height: 100%;
+}
+
+.fabric-card__image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-page);
+}
+
+.fabric-card__image-placeholder-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-placeholder);
+}
+
+/* 收藏按钮（卡片模式） */
+.fabric-card__favorite {
+  position: absolute;
+  top: var(--spacing-xs);
+  right: var(--spacing-xs);
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: rgba(255, 255, 255, 0.85);
+  border-radius: 50%;
+}
+
+.fabric-card__favorite-icon {
+  font-size: var(--font-size-lg);
+  color: var(--color-text-placeholder);
+}
+
+.fabric-card__favorite-icon--active {
+  color: var(--color-accent);
+}
+
+/* 信息区域（卡片模式） */
+.fabric-card__info {
+  padding: var(--spacing-sm);
+}
+
+.fabric-card__name {
+  display: block;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin-bottom: 4rpx;
+}
+
+.fabric-card__param {
+  display: block;
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-xs);
+}
+
+.fabric-card__price {
+  display: block;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-accent);
+}
+
+/* ============================================================
+   List 模式（列表行）
+   ============================================================ */
+
+.fabric-card--list {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: var(--color-bg-card);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md);
+  margin-bottom: var(--spacing-sm);
+  box-shadow: var(--shadow-sm);
+  transition: box-shadow 0.2s ease, transform 0.15s ease;
+}
+
+.fabric-card__list-image-wrapper {
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  flex-shrink: 0;
+  margin-right: var(--spacing-md);
+  background-color: var(--color-bg-page);
+}
+
+.fabric-card__list-image {
+  width: 100%;
+  height: 100%;
+}
+
+.fabric-card__list-image-placeholder {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-bg-page);
+}
+
+.fabric-card__list-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.fabric-card__list-params {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: var(--spacing-xs);
+}
+
+.fabric-card__param-item {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.fabric-card__param-divider {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-placeholder);
+  margin: 0 8rpx;
+}
+
+/* 收藏按钮（列表模式） */
+.fabric-card__list-favorite {
+  width: 56rpx;
+  height: 56rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-left: var(--spacing-sm);
+}

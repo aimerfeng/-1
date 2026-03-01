@@ -1,0 +1,159 @@
+<!--
+  pages/fabric/compare/compare.wxml - 面料对比页面
+  需求: 4.5 以表格形式并排展示各面料的参数差异
+  功能: 横向滚动表格、参数差异高亮、面料移除
+-->
+
+<!-- ============================================================
+     骨架屏（加载中）
+     ============================================================ -->
+<loading-skeleton wx:if="{{loading}}" mode="list" rows="{{8}}" />
+
+<!-- ============================================================
+     加载失败 - 错误提示
+     ============================================================ -->
+<view class="error-container" wx:elif="{{loadError}}">
+  <view class="error-content fade-in">
+    <text class="error-icon">😞</text>
+    <text class="error-title">加载失败</text>
+    <text class="error-desc">面料对比数据加载失败，请检查网络后重试</text>
+    <button class="error-retry-btn" bindtap="onRetry">重新加载</button>
+  </view>
+</view>
+
+<!-- ============================================================
+     面料对比内容
+     ============================================================ -->
+<view class="compare-page {{pageReady ? 'compare-page--ready' : ''}}" wx:elif="{{fabrics.length > 0}}">
+
+  <!-- 对比数量提示 -->
+  <view class="compare-header">
+    <text class="compare-header__title">面料对比</text>
+    <text class="compare-header__count">共 {{fabrics.length}} 个面料</text>
+  </view>
+
+  <!-- ============================================================
+       对比表格区域
+       ============================================================ -->
+  <view class="compare-table">
+
+    <!-- ========================================================
+         表头行：面料图片 + 名称（固定左列 + 横向滚动右列）
+         ======================================================== -->
+    <view class="table-header">
+      <!-- 固定左列：空白标签列 -->
+      <view class="table-fixed-col table-header-label">
+        <text class="fixed-col__text">参数</text>
+      </view>
+      <!-- 横向滚动：面料列 -->
+      <scroll-view class="table-scroll-area"
+                    scroll-x
+                    scroll-left="{{scrollLeft}}"
+                    bindscroll="onHeaderScroll"
+                    enhanced
+                    show-scrollbar="{{false}}">
+        <view class="table-scroll-row">
+          <view class="table-fabric-col"
+                wx:for="{{fabrics}}"
+                wx:key="id">
+            <!-- 移除按钮 -->
+            <view class="fabric-remove-btn"
+                  data-id="{{item.id}}"
+                  catchtap="onRemoveFabric">
+              <text class="fabric-remove-icon">×</text>
+            </view>
+            <!-- 面料图片 -->
+            <view class="fabric-thumb"
+                  data-id="{{item.id}}"
+                  bindtap="onFabricTap">
+              <image class="fabric-thumb__img"
+                     wx:if="{{item.images && item.images.length > 0}}"
+                     src="{{item.images[0]}}"
+                     mode="aspectFill" />
+              <view class="fabric-thumb__placeholder" wx:else>
+                <text class="fabric-thumb__placeholder-icon">🖼</text>
+              </view>
+            </view>
+            <!-- 面料名称 -->
+            <text class="fabric-col-name text-ellipsis"
+                  data-id="{{item.id}}"
+                  bindtap="onFabricTap">{{item.name || '未命名面料'}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </view>
+
+    <!-- ========================================================
+         参数行区域（固定左列 + 横向滚动右列）
+         ======================================================== -->
+    <scroll-view class="table-body" scroll-y>
+      <view class="table-row {{diffMap[row.key] ? 'table-row--diff' : ''}}"
+            wx:for="{{paramRows}}"
+            wx:for-item="row"
+            wx:key="key">
+        <!-- 固定左列：参数标签 -->
+        <view class="table-fixed-col table-label-cell">
+          <text class="label-text">{{row.label}}</text>
+          <!-- 差异指示器 -->
+          <view class="diff-indicator" wx:if="{{diffMap[row.key]}}">
+            <text class="diff-indicator__dot">●</text>
+          </view>
+        </view>
+        <!-- 横向滚动：参数值列 -->
+        <scroll-view class="table-scroll-area"
+                      scroll-x
+                      scroll-left="{{scrollLeft}}"
+                      bindscroll="onContentScroll"
+                      enhanced
+                      show-scrollbar="{{false}}">
+          <view class="table-scroll-row">
+            <view class="table-value-cell {{diffMap[row.key] ? 'table-value-cell--diff' : ''}}"
+                  wx:for="{{fabrics}}"
+                  wx:for-item="fabric"
+                  wx:key="id">
+              <!-- 价格特殊样式 -->
+              <block wx:if="{{row.format === 'price' && fabric[row.key]}}">
+                <text class="value-text value-text--price">¥{{fabric[row.key]}}</text>
+                <text class="value-unit" wx:if="{{row.unit}}">{{row.unit}}</text>
+              </block>
+              <!-- 数值 + 单位 -->
+              <block wx:elif="{{row.format === 'number' && fabric[row.key] !== null && fabric[row.key] !== undefined && fabric[row.key] !== ''}}">
+                <text class="value-text">{{fabric[row.key]}}</text>
+                <text class="value-unit" wx:if="{{row.unit}}"> {{row.unit}}</text>
+              </block>
+              <!-- 文本 -->
+              <block wx:elif="{{fabric[row.key]}}">
+                <text class="value-text">{{fabric[row.key]}}</text>
+              </block>
+              <!-- 空值 -->
+              <block wx:else>
+                <text class="value-text value-text--empty">--</text>
+              </block>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+    </scroll-view>
+
+  </view>
+
+  <!-- ============================================================
+       图例说明
+       ============================================================ -->
+  <view class="legend-section">
+    <view class="legend-item">
+      <view class="legend-dot legend-dot--diff"></view>
+      <text class="legend-text">参数存在差异</text>
+    </view>
+    <view class="legend-item">
+      <view class="legend-dot legend-dot--same"></view>
+      <text class="legend-text">参数相同</text>
+    </view>
+  </view>
+
+  <!-- 操作提示 -->
+  <view class="tip-section">
+    <text class="tip-text">💡 左右滑动可查看更多面料，点击面料图片可查看详情</text>
+  </view>
+
+</view>
