@@ -45,6 +45,19 @@ App({
   },
 
   /**
+   * Resolve runtime env and API base URL.
+   */
+  _initEnvironment: function () {
+    var runtimeEnv = envConfig.getRuntimeEnv();
+    var baseUrl = envConfig.getBaseUrl();
+
+    this.globalData.runtimeEnv = runtimeEnv;
+    this.globalData.baseUrl = baseUrl;
+
+    console.log('[app] env:', runtimeEnv, 'baseUrl:', baseUrl);
+  },
+
+  /**
    * Check if user is already logged in by verifying stored token
    * Updates globalData accordingly
    */

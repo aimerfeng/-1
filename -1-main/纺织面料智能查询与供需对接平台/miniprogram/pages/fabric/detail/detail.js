@@ -120,8 +120,16 @@ Page({
     var that = this;
     if (!auth.isLoggedIn()) return;
 
-    request.get('/fabrics/' + id + '/favorite', {}, { showError: false }).then(function (res) {
-      that.setData({ isFavorited: !!(res && res.is_favorited) });
+    request.get('/fabrics/favorites', { page: 1, per_page: 100 }, { showError: false }).then(function (res) {
+      var favorites = res.items || res || [];
+      var isFavorited = false;
+      for (var i = 0; i < favorites.length; i++) {
+        if (String(favorites[i].fabric_id) === String(id)) {
+          isFavorited = true;
+          break;
+        }
+      }
+      that.setData({ isFavorited: isFavorited });
     }).catch(function () {
       // 静默失败，不影响页面展示
     });
