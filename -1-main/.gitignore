@@ -1,0 +1,15 @@
+# Python caches and tooling
+**/__pycache__/
+**/*.py[cod]
+**/.pytest_cache/
+**/.hypothesis/
+
+# Logs and local artifacts
+**/*.log
+
+# Mini program local-only IDE config
+**/miniprogram/project.private.config.json
+
+# Optional local virtual environments
+.venv/
+venv/

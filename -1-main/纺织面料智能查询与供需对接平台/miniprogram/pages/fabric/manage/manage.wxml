@@ -1,0 +1,33 @@
+<!--pages/fabric/manage/manage.wxml-->
+<view class="manage-page page-fade-in">
+  <view class="header-bar">
+    <text class="header-title">我的面料 ({{total}})</text>
+    <view class="btn-add" bindtap="goPublish">+ 发布面料</view>
+  </view>
+
+  <empty-state wx:if="{{!loading && fabrics.length === 0}}" message="暂无面料，点击上方按钮发布" />
+
+  <view class="fabric-list">
+    <view class="fabric-item" wx:for="{{fabrics}}" wx:key="id" bindtap="goDetail" data-id="{{item.id}}">
+      <view class="fabric-info">
+        <view class="fabric-name">{{item.name}}</view>
+        <view class="fabric-meta">
+          <text class="meta-tag">{{item.composition}}</text>
+          <text class="meta-tag">{{item.craft}}</text>
+          <text class="meta-tag" wx:if="{{item.color}}">{{item.color}}</text>
+        </view>
+        <view class="fabric-stats">
+          <text class="stat-price">¥{{item.price}}/米</text>
+          <text class="stat-stock">库存 {{item.stock_quantity}} 米</text>
+        </view>
+      </view>
+      <view class="fabric-actions" catchtap="goEdit" data-id="{{item.id}}">
+        <text class="btn-edit">编辑</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="loading-more" wx:if="{{loading}}">
+    <text>加载中...</text>
+  </view>
+</view>

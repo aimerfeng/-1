@@ -1,8 +1,0 @@
-{
-  "navigationBarTitleText": "需求列表",
-  "enablePullDownRefresh": true,
-  "usingComponents": {
-    "loading-skeleton": "/components/loading-skeleton/loading-skeleton",
-    "empty-state": "/components/empty-state/empty-state"
-  }
-}

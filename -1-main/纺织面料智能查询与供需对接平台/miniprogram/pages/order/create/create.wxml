@@ -1,0 +1,286 @@
+<!--
+  pages/order/create/create.wxml - 订单创建页面
+  实现订单表单：面料选择、数量输入、价格确认、收货地址填写
+  实现金额自动计算（数量 × 单价）
+  表单验证和提交确认弹窗
+  需求: 7.1
+-->
+
+<view class="page-container page-fade-in">
+
+  <!-- ============================================================
+       骨架屏（加载中）
+       ============================================================ -->
+  <loading-skeleton wx:if="{{loading}}" mode="detail" rows="6" />
+
+  <!-- ============================================================
+       加载失败
+       ============================================================ -->
+  <view class="error-container fade-in" wx:elif="{{loadError}}">
+    <empty-state
+      icon="error"
+      title="加载失败"
+      description="面料信息加载失败，请重试" />
+    <view class="error-retry">
+      <button class="btn-retry" bindtap="onRetry">重新加载</button>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       订单表单（加载成功后展示）
+       ============================================================ -->
+  <block wx:elif="{{fabric}}">
+
+    <!-- 页面头部 -->
+    <view class="page-header fade-in">
+      <view class="page-header__icon">📦</view>
+      <view class="page-header__info">
+        <text class="page-header__title">创建采购订单</text>
+        <text class="page-header__desc">确认面料信息和数量，填写收货地址后提交</text>
+      </view>
+    </view>
+
+    <view class="form-section slide-up">
+
+      <!-- ============================================================
+           面料信息卡片
+           ============================================================ -->
+      <view class="form-card">
+        <view class="form-card__title">
+          <text class="form-card__title-icon">🧵</text>
+          <text>面料信息</text>
+        </view>
+
+        <view class="fabric-info">
+          <!-- 面料图片 -->
+          <view class="fabric-info__image-wrap">
+            <image
+              wx:if="{{fabric.images && fabric.images.length > 0}}"
+              class="fabric-info__image"
+              src="{{fabric.images[0]}}"
+              mode="aspectFill" />
+            <view wx:else class="fabric-info__image-placeholder">
+              <text class="fabric-info__image-placeholder-text">暂无图片</text>
+            </view>
+          </view>
+
+          <!-- 面料详情 -->
+          <view class="fabric-info__detail">
+            <text class="fabric-info__name text-ellipsis">{{fabric.name}}</text>
+            <view class="fabric-info__params">
+              <text class="fabric-info__param">{{fabric.composition || '-'}}</text>
+              <text class="fabric-info__param-sep">|</text>
+              <text class="fabric-info__param">{{fabric.craft || '-'}}</text>
+            </view>
+            <view class="fabric-info__params">
+              <text class="fabric-info__param">克重: {{fabric.weight}}g/m²</text>
+              <text class="fabric-info__param-sep">|</text>
+              <text class="fabric-info__param">幅宽: {{fabric.width}}cm</text>
+            </view>
+            <view class="fabric-info__price-row">
+              <text class="fabric-info__price">¥{{fabric.price}}</text>
+              <text class="fabric-info__price-unit">/米</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 面料附加信息 -->
+        <view class="fabric-extra">
+          <view class="fabric-extra__item" wx:if="{{fabric.min_order_qty}}">
+            <text class="fabric-extra__label">最小起订量</text>
+            <text class="fabric-extra__value">{{fabric.min_order_qty}} 米</text>
+          </view>
+          <view class="fabric-extra__item" wx:if="{{fabric.delivery_days}}">
+            <text class="fabric-extra__label">交货周期</text>
+            <text class="fabric-extra__value">{{fabric.delivery_days}} 天</text>
+          </view>
+          <view class="fabric-extra__item" wx:if="{{fabric.color}}">
+            <text class="fabric-extra__label">颜色</text>
+            <text class="fabric-extra__value">{{fabric.color}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- ============================================================
+           数量与金额
+           ============================================================ -->
+      <view class="form-card">
+        <view class="form-card__title">
+          <text class="form-card__title-icon">📊</text>
+          <text>数量与金额</text>
+        </view>
+
+        <!-- 数量输入 -->
+        <view class="form-item">
+          <view class="form-item__header">
+            <text class="form-item__label">采购数量（米）</text>
+            <text class="form-item__required">*必填</text>
+          </view>
+          <view class="quantity-input-wrap">
+            <view class="quantity-btn quantity-btn--minus {{(!form.quantity || parseInt(form.quantity) <= (fabric.min_order_qty || 1)) ? 'quantity-btn--disabled' : ''}}"
+                  bindtap="onQuantityMinus">
+              <text class="quantity-btn__text">−</text>
+            </view>
+            <view class="quantity-input-box {{errors.quantity ? 'quantity-input-box--error' : ''}}">
+              <input
+                class="quantity-input"
+                type="number"
+                placeholder="输入数量"
+                placeholder-class="form-item__placeholder"
+                value="{{form.quantity}}"
+                bindinput="onQuantityInput"
+              />
+            </view>
+            <view class="quantity-btn quantity-btn--plus" bindtap="onQuantityPlus">
+              <text class="quantity-btn__text">+</text>
+            </view>
+          </view>
+          <text class="form-item__error" wx:if="{{errors.quantity}}">{{errors.quantity}}</text>
+          <text class="form-item__hint" wx:elif="{{fabric.min_order_qty}}">
+            最小起订量：{{fabric.min_order_qty}} 米
+          </text>
+        </view>
+
+        <!-- 金额自动计算展示 -->
+        <view class="amount-display">
+          <view class="amount-display__row">
+            <text class="amount-display__label">单价</text>
+            <text class="amount-display__value">¥{{fabric.price}}/米</text>
+          </view>
+          <view class="amount-display__row">
+            <text class="amount-display__label">数量</text>
+            <text class="amount-display__value">{{form.quantity || 0}} 米</text>
+          </view>
+          <view class="amount-display__divider"></view>
+          <view class="amount-display__row amount-display__row--total">
+            <text class="amount-display__label amount-display__label--total">订单总额</text>
+            <text class="amount-display__total">¥{{totalAmount}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- ============================================================
+           收货地址
+           ============================================================ -->
+      <view class="form-card">
+        <view class="form-card__title">
+          <text class="form-card__title-icon">📍</text>
+          <text>收货地址</text>
+        </view>
+
+        <view class="form-item">
+          <view class="form-item__header">
+            <text class="form-item__label">详细地址</text>
+            <text class="form-item__required">*必填</text>
+          </view>
+          <view class="form-item__textarea-wrap {{errors.address ? 'form-item__textarea-wrap--error' : ''}}">
+            <textarea
+              class="form-item__textarea"
+              placeholder="请填写完整的收货地址（省/市/区/街道/门牌号）"
+              placeholder-class="form-item__placeholder"
+              value="{{form.address}}"
+              maxlength="200"
+              auto-height
+              bindinput="onAddressInput"
+            />
+          </view>
+          <text class="form-item__error" wx:if="{{errors.address}}">{{errors.address}}</text>
+          <text class="form-item__hint" wx:else>请填写详细的收货地址，确保物流准确送达</text>
+        </view>
+      </view>
+
+    </view>
+
+    <!-- ============================================================
+         底部提交栏
+         ============================================================ -->
+    <view class="submit-bar safe-bottom">
+      <view class="submit-bar__amount">
+        <text class="submit-bar__amount-label">合计：</text>
+        <text class="submit-bar__amount-value">¥{{totalAmount}}</text>
+      </view>
+      <button
+        class="submit-btn {{submitting ? 'submit-btn--loading' : ''}}"
+        bindtap="handleSubmit"
+        disabled="{{submitting}}"
+      >
+        <text wx:if="{{!submitting}}">提交订单</text>
+        <view class="loading-dots" wx:else>
+          <view class="dot dot1"></view>
+          <view class="dot dot2"></view>
+          <view class="dot dot3"></view>
+        </view>
+      </button>
+    </view>
+
+    <!-- ============================================================
+         确认弹窗
+         ============================================================ -->
+    <view class="confirm-mask" wx:if="{{showConfirm}}" catchtouchmove="preventTouchMove">
+      <view class="confirm-modal slide-up">
+        <view class="confirm-modal__header">
+          <text class="confirm-modal__title">确认订单</text>
+        </view>
+
+        <view class="confirm-modal__body">
+          <view class="confirm-detail">
+            <view class="confirm-detail__row">
+              <text class="confirm-detail__label">面料名称</text>
+              <text class="confirm-detail__value text-ellipsis">{{fabric.name}}</text>
+            </view>
+            <view class="confirm-detail__row">
+              <text class="confirm-detail__label">单价</text>
+              <text class="confirm-detail__value">¥{{fabric.price}}/米</text>
+            </view>
+            <view class="confirm-detail__row">
+              <text class="confirm-detail__label">采购数量</text>
+              <text class="confirm-detail__value">{{form.quantity}} 米</text>
+            </view>
+            <view class="confirm-detail__divider"></view>
+            <view class="confirm-detail__row confirm-detail__row--total">
+              <text class="confirm-detail__label">订单总额</text>
+              <text class="confirm-detail__total">¥{{totalAmount}}</text>
+            </view>
+            <view class="confirm-detail__row">
+              <text class="confirm-detail__label">收货地址</text>
+              <text class="confirm-detail__value confirm-detail__value--address">{{form.address}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="confirm-modal__footer">
+          <button class="confirm-btn confirm-btn--cancel" bindtap="onCancelConfirm">取消</button>
+          <button class="confirm-btn confirm-btn--submit" bindtap="onConfirmSubmit">确认提交</button>
+        </view>
+      </view>
+    </view>
+
+    <!-- ============================================================
+         提交成功弹窗
+         ============================================================ -->
+    <view class="success-mask" wx:if="{{showSuccess}}" catchtouchmove="preventTouchMove">
+      <view class="success-modal slide-up">
+        <view class="success-icon-wrap">
+          <text class="success-icon">✓</text>
+        </view>
+        <text class="success-title">订单创建成功！</text>
+        <text class="success-desc" wx:if="{{createdOrderNo}}">
+          订单号：{{createdOrderNo}}
+        </text>
+        <text class="success-desc">
+          订单已提交，等待供应商确认
+        </text>
+        <view class="success-actions">
+          <button class="success-btn success-btn--primary" bindtap="goToOrderDetail">
+            查看订单详情
+          </button>
+          <button class="success-btn success-btn--secondary" bindtap="goToOrderList">
+            返回订单列表
+          </button>
+        </view>
+      </view>
+    </view>
+
+  </block>
+
+</view>

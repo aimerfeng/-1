@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"C:\\\\Users\\\\tang\\\\Desktop\\\\布料图片\" /b)",
+      "Bash(python check_db.py)",
+      "Bash(python test_api.py)",
+      "Bash(python init_dev_data.py)"
+    ]
+  }
+}

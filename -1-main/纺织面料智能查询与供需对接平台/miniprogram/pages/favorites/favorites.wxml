@@ -1,0 +1,74 @@
+<!--
+  pages/favorites/favorites.wxml - 收藏列表页面
+  使用 fabric-card 组件展示已收藏面料
+  支持滑动删除取消收藏、下拉刷新、上拉加载更多
+  需求: 9.4
+-->
+
+<view class="page-container page-fade-in">
+
+  <!-- ============================================================
+       骨架屏（首次加载时展示）
+       ============================================================ -->
+  <loading-skeleton wx:if="{{loading}}" mode="list" rows="4" />
+
+  <!-- ============================================================
+       收藏列表
+       ============================================================ -->
+  <view class="favorites-list" wx:elif="{{favoriteList.length > 0}}">
+    <view
+      class="favorite-item-wrapper {{swipeOpenIndex === index ? 'favorite-item-wrapper--open' : ''}} {{removingId === item.fabric_id ? 'favorite-item--removing' : ''}}"
+      wx:for="{{favoriteList}}"
+      wx:key="id"
+      data-index="{{index}}"
+      bindtouchstart="onTouchStart"
+      bindtouchmove="onTouchMove"
+    >
+      <!-- 面料卡片内容区域 -->
+      <view
+        class="favorite-item__content"
+        data-fabric-id="{{item.fabric_id}}"
+        bindtap="onFabricTap"
+      >
+        <fabric-card
+          fabric="{{item.fabric}}"
+          mode="list"
+          showFavorite="{{false}}"
+        />
+      </view>
+
+      <!-- 滑动删除按钮 -->
+      <view
+        class="favorite-item__delete"
+        data-fabric-id="{{item.fabric_id}}"
+        data-index="{{index}}"
+        catchtap="onRemoveFavorite"
+      >
+        <text class="favorite-item__delete-icon">🗑️</text>
+        <text class="favorite-item__delete-text">取消收藏</text>
+      </view>
+    </view>
+
+    <!-- 加载更多提示 -->
+    <view class="load-more" wx:if="{{loadingMore}}">
+      <view class="load-more__spinner"></view>
+      <text class="load-more__text">加载中...</text>
+    </view>
+    <view class="load-more" wx:elif="{{!hasMore}}">
+      <text class="load-more__text load-more__text--end">— 已加载全部收藏 —</text>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       空状态
+       ============================================================ -->
+  <empty-state
+    wx:elif="{{!loading && favoriteList.length === 0}}"
+    icon="favorite"
+    title="暂无收藏"
+    description="去面料市场逛逛，收藏感兴趣的面料吧"
+    actionText="去逛逛"
+    bind:action="onGoExplore"
+  />
+
+</view>

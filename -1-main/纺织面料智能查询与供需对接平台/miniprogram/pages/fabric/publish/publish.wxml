@@ -1,0 +1,65 @@
+<!--pages/fabric/publish/publish.wxml-->
+<view class="publish-page page-fade-in">
+  <view class="form-card">
+    <view class="form-title">{{isEdit ? '编辑面料' : '发布面料供应'}}</view>
+
+    <view class="form-group">
+      <text class="form-label">面料名称 <text class="required">*</text></text>
+      <input class="form-input" placeholder="如：精梳纯棉府绸" value="{{form.name}}" data-field="name" bindinput="onInput" />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">成分 <text class="required">*</text></text>
+      <input class="form-input" placeholder="如：100%精梳棉" value="{{form.composition}}" data-field="composition" bindinput="onInput" />
+    </view>
+
+    <view class="form-row">
+      <view class="form-group form-half">
+        <text class="form-label">克重(g/m²) <text class="required">*</text></text>
+        <input class="form-input" type="digit" placeholder="如：120" value="{{form.weight}}" data-field="weight" bindinput="onInput" />
+      </view>
+      <view class="form-group form-half">
+        <text class="form-label">幅宽(cm) <text class="required">*</text></text>
+        <input class="form-input" type="digit" placeholder="如：150" value="{{form.width}}" data-field="width" bindinput="onInput" />
+      </view>
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">工艺 <text class="required">*</text></text>
+      <input class="form-input" placeholder="如：平纹、斜纹、缎纹" value="{{form.craft}}" data-field="craft" bindinput="onInput" />
+    </view>
+
+    <view class="form-group">
+      <text class="form-label">颜色</text>
+      <input class="form-input" placeholder="如：漂白、藏青" value="{{form.color}}" data-field="color" bindinput="onInput" />
+    </view>
+
+    <view class="form-row">
+      <view class="form-group form-half">
+        <text class="form-label">单价(元/米) <text class="required">*</text></text>
+        <input class="form-input" type="digit" placeholder="如：18.5" value="{{form.price}}" data-field="price" bindinput="onInput" />
+      </view>
+      <view class="form-group form-half">
+        <text class="form-label">库存量(米)</text>
+        <input class="form-input" type="number" placeholder="如：5000" value="{{form.stock_quantity}}" data-field="stock_quantity" bindinput="onInput" />
+      </view>
+    </view>
+
+    <view class="form-row">
+      <view class="form-group form-half">
+        <text class="form-label">起订量(米)</text>
+        <input class="form-input" type="number" placeholder="如：500" value="{{form.min_order_qty}}" data-field="min_order_qty" bindinput="onInput" />
+      </view>
+      <view class="form-group form-half">
+        <text class="form-label">交货天数</text>
+        <input class="form-input" type="number" placeholder="如：7" value="{{form.delivery_days}}" data-field="delivery_days" bindinput="onInput" />
+      </view>
+    </view>
+  </view>
+
+  <view class="btn-area">
+    <button class="btn-submit {{loading ? 'btn-disabled' : ''}}" bindtap="onSubmit" disabled="{{loading}}">
+      {{loading ? '提交中...' : (isEdit ? '保存修改' : '发布面料')}}
+    </button>
+  </view>
+</view>

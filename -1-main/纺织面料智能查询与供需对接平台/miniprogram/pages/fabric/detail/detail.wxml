@@ -1,0 +1,163 @@
+<!--
+  pages/fabric/detail/detail.wxml - 面料详情页面
+  需求: 4.3 面料完整参数, 4.4 图片放大预览, 10.4 视觉反馈与动效
+-->
+
+<!-- ============================================================
+     骨架屏（加载中）
+     ============================================================ -->
+<loading-skeleton wx:if="{{loading}}" mode="detail" />
+
+<!-- ============================================================
+     加载失败 - 错误提示
+     ============================================================ -->
+<view class="error-container" wx:elif="{{loadError}}">
+  <view class="error-content fade-in">
+    <text class="error-icon">😞</text>
+    <text class="error-title">加载失败</text>
+    <text class="error-desc">面料信息加载失败，请检查网络后重试</text>
+    <button class="error-retry-btn" bindtap="onRetry">重新加载</button>
+  </view>
+</view>
+
+<!-- ============================================================
+     面料详情内容
+     ============================================================ -->
+<view class="detail-page {{pageReady ? 'detail-page--ready' : ''}}" wx:elif="{{fabric}}">
+
+  <!-- ============================================================
+       图片轮播区域
+       ============================================================ -->
+  <view class="swiper-section">
+    <block wx:if="{{fabric.images.length > 0}}">
+      <swiper class="image-swiper"
+              indicator-dots="{{false}}"
+              autoplay="{{true}}"
+              interval="{{4000}}"
+              duration="{{500}}"
+              circular="{{true}}"
+              bindchange="onSwiperChange">
+        <swiper-item wx:for="{{fabric.images}}" wx:key="*this">
+          <image class="swiper-image"
+                 src="{{item}}"
+                 mode="aspectFill"
+                 data-src="{{item}}"
+                 bindtap="onImagePreview" />
+        </swiper-item>
+      </swiper>
+      <!-- 自定义指示器 -->
+      <view class="swiper-indicator" wx:if="{{fabric.images.length > 1}}">
+        <view class="swiper-dot {{swiperCurrent === index ? 'swiper-dot--active' : ''}}"
+              wx:for="{{fabric.images}}"
+              wx:key="*this">
+        </view>
+      </view>
+      <!-- 图片计数 -->
+      <view class="swiper-counter" wx:if="{{fabric.images.length > 1}}">
+        <text>{{swiperCurrent + 1}}/{{fabric.images.length}}</text>
+      </view>
+    </block>
+    <!-- 无图片占位 -->
+    <view class="no-image-placeholder" wx:else>
+      <text class="no-image-icon">🖼</text>
+      <text class="no-image-text">暂无图片</text>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       面料名称与价格区域
+       ============================================================ -->
+  <view class="info-section slide-up">
+    <view class="info-header">
+      <text class="fabric-name">{{fabric.name}}</text>
+      <view class="fabric-status" wx:if="{{fabric.status === 'active'}}">
+        <text class="fabric-status__text">在售</text>
+      </view>
+    </view>
+    <view class="price-row">
+      <text class="price-symbol">¥</text>
+      <text class="price-value">{{fabric.price || '--'}}</text>
+      <text class="price-unit">/米</text>
+    </view>
+    <view class="quick-info">
+      <view class="quick-info__item" wx:if="{{fabric.composition}}">
+        <text class="quick-info__tag">{{fabric.composition}}</text>
+      </view>
+      <view class="quick-info__item" wx:if="{{fabric.craft}}">
+        <text class="quick-info__tag">{{fabric.craft}}</text>
+      </view>
+      <view class="quick-info__item" wx:if="{{fabric.color}}">
+        <text class="quick-info__tag">{{fabric.color}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       面料参数详情卡片
+       ============================================================ -->
+  <view class="params-section slide-up">
+    <view class="section-header">
+      <text class="section-title">面料参数</text>
+    </view>
+    <view class="params-grid">
+      <view class="param-item" wx:for="{{paramList}}" wx:key="label">
+        <view class="param-item__icon">
+          <text>{{item.icon}}</text>
+        </view>
+        <view class="param-item__content">
+          <text class="param-item__label">{{item.label}}</text>
+          <text class="param-item__value">{{item.value}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       供应商信息区域
+       ============================================================ -->
+  <view class="supplier-section slide-up" wx:if="{{fabric.supplier}}">
+    <view class="section-header">
+      <text class="section-title">供应商信息</text>
+    </view>
+    <view class="supplier-card">
+      <view class="supplier-avatar">
+        <text class="supplier-avatar__text">{{fabric.supplier.company_name ? fabric.supplier.company_name[0] : '商'}}</text>
+      </view>
+      <view class="supplier-info">
+        <text class="supplier-name">{{fabric.supplier.company_name || '未知供应商'}}</text>
+        <text class="supplier-contact" wx:if="{{fabric.supplier.contact_name}}">联系人：{{fabric.supplier.contact_name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 底部占位（防止内容被底部操作栏遮挡） -->
+  <view class="bottom-placeholder"></view>
+
+  <!-- ============================================================
+       底部操作栏
+       ============================================================ -->
+  <view class="action-bar safe-bottom slide-up">
+    <!-- 收藏按钮 -->
+    <view class="action-bar__fav {{isFavorited ? 'action-bar__fav--active' : ''}}"
+          bindtap="onToggleFavorite">
+      <text class="action-bar__fav-icon">{{isFavorited ? '❤' : '♡'}}</text>
+      <text class="action-bar__fav-text">{{isFavorited ? '已收藏' : '收藏'}}</text>
+    </view>
+    <!-- 分享按钮 -->
+    <button class="action-bar__share" open-type="share" plain="{{true}}">
+      <text class="action-bar__share-icon">↗</text>
+      <text class="action-bar__share-text">分享</text>
+    </button>
+    <!-- 申请样品按钮 -->
+    <button class="action-bar__btn action-bar__btn--sample"
+            bindtap="onRequestSample">
+      申请样品
+    </button>
+    <!-- 立即下单按钮 -->
+    <button class="action-bar__btn action-bar__btn--order"
+            bindtap="onPlaceOrder">
+      立即下单
+    </button>
+  </view>
+
+</view>

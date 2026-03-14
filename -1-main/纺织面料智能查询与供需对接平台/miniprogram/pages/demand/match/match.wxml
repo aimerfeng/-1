@@ -1,0 +1,128 @@
+<!--
+  pages/demand/match/match.wxml - 匹配结果页面
+  展示匹配度评分（进度条可视化）、面料信息摘要、供应商基本信息
+  需求: 5.5 - 展示匹配度评分、面料信息摘要和供应商基本信息
+-->
+
+<view class="page-container page-fade-in">
+
+  <!-- ============================================================
+       顶部需求信息栏
+       ============================================================ -->
+  <view class="demand-header" wx:if="{{demandTitle && !loading}}">
+    <view class="demand-header__icon">📋</view>
+    <view class="demand-header__info">
+      <text class="demand-header__label">当前需求</text>
+      <text class="demand-header__title text-ellipsis">{{demandTitle}}</text>
+    </view>
+    <view class="demand-header__count" wx:if="{{total > 0}}">
+      <text class="demand-header__count-num">{{total}}</text>
+      <text class="demand-header__count-label">个匹配</text>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       骨架屏（首次加载时展示）
+       ============================================================ -->
+  <loading-skeleton wx:if="{{loading}}" mode="list" rows="{{5}}" avatar="{{true}}" />
+
+  <!-- ============================================================
+       加载失败状态
+       ============================================================ -->
+  <view class="error-state slide-up" wx:elif="{{loadError}}">
+    <view class="error-state__icon">⚠️</view>
+    <text class="error-state__title">加载失败</text>
+    <text class="error-state__desc">网络异常，请检查网络后重试</text>
+    <button class="error-state__btn" bindtap="onRetry">重新加载</button>
+  </view>
+
+  <!-- ============================================================
+       匹配结果列表
+       ============================================================ -->
+  <view class="match-list {{pageReady ? 'fade-in' : ''}}" wx:elif="{{matchList.length > 0}}">
+    <view class="match-item slide-up"
+          wx:for="{{matchList}}"
+          wx:key="id"
+          style="animation-delay: {{index * 0.06}}s"
+          data-fabric-id="{{item.fabricId}}"
+          bindtap="onMatchItemTap">
+
+      <!-- 匹配度评分区域 -->
+      <view class="match-item__score-section">
+        <view class="match-item__score-ring {{item.scoreColorClass}}">
+          <text class="match-item__score-value">{{item.score}}</text>
+          <text class="match-item__score-unit">分</text>
+        </view>
+        <text class="match-item__score-level {{item.scoreColorClass}}">{{item.scoreLevel}}</text>
+      </view>
+
+      <!-- 面料信息区域 -->
+      <view class="match-item__content">
+        <!-- 面料名称和供应商 -->
+        <view class="match-item__header">
+          <text class="match-item__fabric-name text-ellipsis">{{item.fabricName}}</text>
+          <view class="match-item__supplier">
+            <text class="match-item__supplier-icon">🏭</text>
+            <text class="match-item__supplier-name text-ellipsis">{{item.supplierName}}</text>
+          </view>
+        </view>
+
+        <!-- 面料关键参数 -->
+        <view class="match-item__params">
+          <view class="match-item__param">
+            <text class="match-item__param-label">成分</text>
+            <text class="match-item__param-value text-ellipsis">{{item.composition}}</text>
+          </view>
+          <view class="match-item__param">
+            <text class="match-item__param-label">克重</text>
+            <text class="match-item__param-value">{{item.weight}}</text>
+          </view>
+          <view class="match-item__param">
+            <text class="match-item__param-label">工艺</text>
+            <text class="match-item__param-value">{{item.craft}}</text>
+          </view>
+          <view class="match-item__param">
+            <text class="match-item__param-label">价格</text>
+            <text class="match-item__param-value match-item__param-value--price">{{item.price}}</text>
+          </view>
+        </view>
+
+        <!-- 维度得分进度条 -->
+        <view class="match-item__dimensions" wx:if="{{item.dimensions.length > 0}}">
+          <view class="dimension-bar"
+                wx:for="{{item.dimensions}}"
+                wx:for-item="dim"
+                wx:key="key">
+            <text class="dimension-bar__label">{{dim.label}}</text>
+            <view class="dimension-bar__track">
+              <view class="dimension-bar__fill {{dim.score >= 80 ? 'dimension-bar__fill--high' : dim.score >= 60 ? 'dimension-bar__fill--mid' : dim.score >= 40 ? 'dimension-bar__fill--low' : 'dimension-bar__fill--vlow'}}"
+                    style="width: {{dim.score}}%"></view>
+            </view>
+            <text class="dimension-bar__score">{{dim.score}}</text>
+          </view>
+        </view>
+
+        <!-- 附加信息标签 -->
+        <view class="match-item__tags" wx:if="{{item.minOrderQty || item.deliveryDays}}">
+          <text class="match-item__tag" wx:if="{{item.minOrderQty}}">{{item.minOrderQty}}</text>
+          <text class="match-item__tag" wx:if="{{item.deliveryDays}}">{{item.deliveryDays}}</text>
+        </view>
+      </view>
+
+      <!-- 右箭头 -->
+      <view class="match-item__arrow">
+        <text class="match-item__arrow-icon">›</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- ============================================================
+       空状态
+       ============================================================ -->
+  <empty-state
+    wx:elif="{{!loading && matchList.length === 0}}"
+    icon="search"
+    title="暂无匹配结果"
+    description="当前需求暂未匹配到合适的面料，请稍后再试或调整需求条件" />
+
+</view>

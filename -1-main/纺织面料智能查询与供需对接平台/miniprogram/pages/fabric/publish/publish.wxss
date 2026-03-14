@@ -1,0 +1,90 @@
+/**
+ * pages/fabric/publish/publish.wxss - 面料发布页样式
+ * 使用全局设计系统变量
+ */
+
+.publish-page {
+  padding: var(--spacing-md);
+  background: var(--color-bg-page);
+  min-height: 100vh;
+}
+
+.form-card {
+  background: var(--color-bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-title {
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-group {
+  margin-bottom: var(--spacing-lg);
+}
+
+.form-label {
+  font-size: var(--font-size-base);
+  color: var(--color-text-secondary);
+  margin-bottom: var(--spacing-sm);
+  display: block;
+}
+
+.required {
+  color: var(--color-accent);
+}
+
+.form-input {
+  background: var(--color-bg-page);
+  border-radius: var(--radius-md);
+  padding: var(--spacing-md) var(--spacing-md);
+  font-size: var(--font-size-base);
+  color: var(--color-text-primary);
+  transition: border-color 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  box-shadow: 0 0 0 2rpx var(--color-primary-light);
+}
+
+.form-row {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.form-half {
+  flex: 1;
+}
+
+.btn-area {
+  margin-top: var(--spacing-xl);
+  padding: 0 var(--spacing-lg) var(--spacing-xxl);
+}
+
+.btn-submit {
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+  color: var(--color-text-inverse);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
+  padding: var(--spacing-md) 0;
+}
+
+.btn-submit::after {
+  border: none;
+}
+
+.btn-submit:active {
+  opacity: 0.85;
+  transform: scale(0.98);
+}
+
+.btn-disabled {
+  opacity: 0.6;
+}

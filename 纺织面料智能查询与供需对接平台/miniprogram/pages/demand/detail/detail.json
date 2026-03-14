@@ -1,7 +1,0 @@
-{
-  "navigationBarTitleText": "需求详情",
-  "usingComponents": {
-    "loading-skeleton": "/components/loading-skeleton/loading-skeleton",
-    "status-tag": "/components/status-tag/status-tag"
-  }
-}
