@@ -22,12 +22,12 @@ class BaseConfig:
 
 
 class DevelopmentConfig(BaseConfig):
-    """Development configuration with MySQL."""
+    """Development configuration with SQLite (default) or MySQL."""
 
     DEBUG = True
     SQLALCHEMY_DATABASE_URI = os.environ.get(
         "DATABASE_URL",
-        "mysql+pymysql://root:password@localhost:3306/textile_fabric_platform",
+        "sqlite:///" + os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "instance", "dev.db"),
     )
 
 
