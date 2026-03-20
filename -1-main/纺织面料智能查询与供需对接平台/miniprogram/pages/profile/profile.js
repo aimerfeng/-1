@@ -200,11 +200,11 @@ Page({
   },
 
   goToAudit: function () {
-    wx.showToast({ title: '审核功能开发中', icon: 'none' });
+    wx.navigateTo({ url: '/pages/admin/admin?tab=users' });
   },
 
   goToStats: function () {
-    wx.showToast({ title: '统计功能开发中', icon: 'none' });
+    wx.navigateTo({ url: '/pages/admin/admin?tab=stats' });
   },
 
   goToAbout: function () {

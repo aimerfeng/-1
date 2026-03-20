@@ -335,6 +335,131 @@
 
     </block>
 
+    <!-- ============================================================
+         数据统计 Tab 内容
+         ============================================================ -->
+    <block wx:elif="{{activeAdminTab === 'stats'}}">
+
+      <!-- 加载中 -->
+      <loading-skeleton wx:if="{{statsDetailLoading}}" mode="list" />
+
+      <view class="ds-container" wx:elif="{{statsDetail}}">
+
+        <!-- 数据概览卡片 -->
+        <view class="ds-overview">
+          <view class="ds-overview__row">
+            <view class="ds-overview__card">
+              <text class="ds-overview__value">{{statsDetail.total_users}}</text>
+              <text class="ds-overview__label">总用户</text>
+            </view>
+            <view class="ds-overview__card">
+              <text class="ds-overview__value">{{statsDetail.total_fabrics}}</text>
+              <text class="ds-overview__label">总面料</text>
+            </view>
+            <view class="ds-overview__card">
+              <text class="ds-overview__value">{{statsDetail.total_orders}}</text>
+              <text class="ds-overview__label">总订单</text>
+            </view>
+          </view>
+          <view class="ds-overview__row">
+            <view class="ds-overview__card">
+              <text class="ds-overview__value">{{statsDetail.total_demands}}</text>
+              <text class="ds-overview__label">总需求</text>
+            </view>
+            <view class="ds-overview__card ds-overview__card--wide">
+              <text class="ds-overview__value ds-overview__value--amount">¥{{statsDetail.total_amount}}</text>
+              <text class="ds-overview__label">订单总额</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 用户角色分布 -->
+        <view class="ds-section">
+          <text class="ds-section__title">用户角色分布</text>
+          <view class="ds-bar-list">
+            <view class="ds-bar-item" wx:for="{{roleDist}}" wx:key="label">
+              <text class="ds-bar-item__label">{{item.label}}</text>
+              <view class="ds-bar-item__track">
+                <view class="ds-bar-item__fill" style="width: {{item.pct}}%; background-color: {{item.color}};"></view>
+              </view>
+              <text class="ds-bar-item__value">{{item.value}} ({{item.pct}}%)</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 认证状态分布 -->
+        <view class="ds-section">
+          <text class="ds-section__title">认证状态分布</text>
+          <view class="ds-bar-list">
+            <view class="ds-bar-item" wx:for="{{certDist}}" wx:key="label">
+              <text class="ds-bar-item__label">{{item.label}}</text>
+              <view class="ds-bar-item__track">
+                <view class="ds-bar-item__fill" style="width: {{item.pct}}%; background-color: {{item.color}};"></view>
+              </view>
+              <text class="ds-bar-item__value">{{item.value}} ({{item.pct}}%)</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 订单状态分布 -->
+        <view class="ds-section">
+          <text class="ds-section__title">订单状态分布</text>
+          <view class="ds-bar-list">
+            <view class="ds-bar-item" wx:for="{{orderDist}}" wx:key="label">
+              <text class="ds-bar-item__label">{{item.label}}</text>
+              <view class="ds-bar-item__track">
+                <view class="ds-bar-item__fill" style="width: {{item.pct}}%; background-color: {{item.color}};"></view>
+              </view>
+              <text class="ds-bar-item__value">{{item.value}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 需求状态分布 -->
+        <view class="ds-section">
+          <text class="ds-section__title">需求状态分布</text>
+          <view class="ds-bar-list">
+            <view class="ds-bar-item" wx:for="{{demandDist}}" wx:key="label">
+              <text class="ds-bar-item__label">{{item.label}}</text>
+              <view class="ds-bar-item__track">
+                <view class="ds-bar-item__fill" style="width: {{item.pct}}%; background-color: {{item.color}};"></view>
+              </view>
+              <text class="ds-bar-item__value">{{item.value}} ({{item.pct}}%)</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 近7天趋势 -->
+        <view class="ds-section">
+          <text class="ds-section__title">近7天新增用户</text>
+          <view class="ds-trend">
+            <view class="ds-trend__bar-group" wx:for="{{trendDays}}" wx:key="*this">
+              <view class="ds-trend__bar-wrap">
+                <text class="ds-trend__bar-val" wx:if="{{trendUsers[index] > 0}}">{{trendUsers[index]}}</text>
+                <view class="ds-trend__bar" style="height: {{trendUsers[index] / trendUserMax * 120}}rpx; background-color: #5C6BC0;"></view>
+              </view>
+              <text class="ds-trend__day">{{item}}</text>
+            </view>
+          </view>
+        </view>
+
+        <view class="ds-section">
+          <text class="ds-section__title">近7天新增订单</text>
+          <view class="ds-trend">
+            <view class="ds-trend__bar-group" wx:for="{{trendDays}}" wx:key="*this">
+              <view class="ds-trend__bar-wrap">
+                <text class="ds-trend__bar-val" wx:if="{{trendOrders[index] > 0}}">{{trendOrders[index]}}</text>
+                <view class="ds-trend__bar" style="height: {{trendOrders[index] / trendOrderMax * 120}}rpx; background-color: #26A69A;"></view>
+              </view>
+              <text class="ds-trend__day">{{item}}</text>
+            </view>
+          </view>
+        </view>
+
+      </view>
+
+    </block>
+
   </block>
 
   <!-- ============================================================

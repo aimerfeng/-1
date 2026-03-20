@@ -28,7 +28,8 @@ var STATUS_TABS = [
 var ADMIN_TABS = [
   { key: 'users', label: '用户审核' },
   { key: 'orders', label: '订单监控' },
-  { key: 'conversations', label: '会话监控' }
+  { key: 'conversations', label: '会话监控' },
+  { key: 'stats', label: '数据统计' }
 ];
 
 /** 订单状态中文映射 */
@@ -119,10 +120,28 @@ Page({
     /** 拒绝原因输入 */
     rejectReason: '',
     /** 审核操作加载中 */
-    reviewLoading: false
+    reviewLoading: false,
+
+    /** 数据统计详情 */
+    statsDetail: null,
+    statsDetailLoading: false,
+    /** 统计分布数据（用于渲染柱状图） */
+    roleDist: [],
+    certDist: [],
+    orderDist: [],
+    demandDist: [],
+    /** 趋势数据 */
+    trendDays: [],
+    trendUsers: [],
+    trendOrders: [],
+    trendUserMax: 1,
+    trendOrderMax: 1
   },
 
-  onLoad: function () {
+  onLoad: function (options) {
+    if (options && options.tab) {
+      this.setData({ activeAdminTab: options.tab });
+    }
     this._checkAdminRole();
   },
 
@@ -136,6 +155,8 @@ Page({
         this._loadOrders(true);
       } else if (tab === 'conversations') {
         this._loadConversations(true);
+      } else if (tab === 'stats') {
+        this._loadStatsDetail();
       }
     }
   },
@@ -152,6 +173,8 @@ Page({
       this._loadOrders(true);
     } else if (tab === 'conversations') {
       this._loadConversations(true);
+    } else if (tab === 'stats') {
+      this._loadStatsDetail();
     }
   },
 
@@ -193,7 +216,16 @@ Page({
 
     this.setData({ isAdmin: true });
     this._loadStats();
-    this._loadUsers(true);
+    var tab = this.data.activeAdminTab;
+    if (tab === 'stats') {
+      this._loadStatsDetail();
+    } else if (tab === 'orders') {
+      this._loadOrders(true);
+    } else if (tab === 'conversations') {
+      this._loadConversations(true);
+    } else {
+      this._loadUsers(true);
+    }
   },
 
   // ============================================================
@@ -255,6 +287,97 @@ Page({
     });
   },
 
+  /**
+   * 加载数据统计详情（调用 /admin/stats 接口）
+   */
+  _loadStatsDetail: function () {
+    var that = this;
+    this.setData({ statsDetailLoading: true });
+
+    request.get('/admin/stats').then(function (res) {
+      var overview = res.overview || {};
+      var roleDist = res.user_role_dist || {};
+      var certDist = res.user_cert_dist || {};
+      var orderDist = res.order_status_dist || {};
+      var demandDist = res.demand_status_dist || {};
+      var trends = res.trends || {};
+
+      // 构建分布数据数组（用于渲染柱状图）
+      var roleTotal = (roleDist.buyer || 0) + (roleDist.supplier || 0) + (roleDist.admin || 0);
+      var roleArr = [
+        { label: '采购方', value: roleDist.buyer || 0, pct: roleTotal ? Math.round((roleDist.buyer || 0) / roleTotal * 100) : 0, color: '#5C6BC0' },
+        { label: '供应商', value: roleDist.supplier || 0, pct: roleTotal ? Math.round((roleDist.supplier || 0) / roleTotal * 100) : 0, color: '#26A69A' },
+        { label: '管理员', value: roleDist.admin || 0, pct: roleTotal ? Math.round((roleDist.admin || 0) / roleTotal * 100) : 0, color: '#FF7043' }
+      ];
+
+      var certTotal = (certDist.pending || 0) + (certDist.approved || 0) + (certDist.rejected || 0);
+      var certArr = [
+        { label: '待审核', value: certDist.pending || 0, pct: certTotal ? Math.round((certDist.pending || 0) / certTotal * 100) : 0, color: '#FFA726' },
+        { label: '已通过', value: certDist.approved || 0, pct: certTotal ? Math.round((certDist.approved || 0) / certTotal * 100) : 0, color: '#66BB6A' },
+        { label: '已拒绝', value: certDist.rejected || 0, pct: certTotal ? Math.round((certDist.rejected || 0) / certTotal * 100) : 0, color: '#EF5350' }
+      ];
+
+      var orderArr = [
+        { label: '待确认', value: orderDist.pending || 0, color: '#FFA726' },
+        { label: '已确认', value: orderDist.confirmed || 0, color: '#42A5F5' },
+        { label: '生产中', value: orderDist.producing || 0, color: '#AB47BC' },
+        { label: '已发货', value: orderDist.shipped || 0, color: '#66BB6A' },
+        { label: '已签收', value: orderDist.received || 0, color: '#26C6DA' },
+        { label: '已完成', value: orderDist.completed || 0, color: '#8D6E63' }
+      ];
+      var orderMax = 1;
+      for (var i = 0; i < orderArr.length; i++) {
+        if (orderArr[i].value > orderMax) orderMax = orderArr[i].value;
+      }
+      for (var j = 0; j < orderArr.length; j++) {
+        orderArr[j].pct = Math.round(orderArr[j].value / orderMax * 100);
+      }
+
+      var demandArr = [
+        { label: '进行中', value: demandDist.open || 0, color: '#42A5F5' },
+        { label: '已匹配', value: demandDist.matched || 0, color: '#66BB6A' },
+        { label: '已关闭', value: demandDist.closed || 0, color: '#BDBDBD' }
+      ];
+      var demandTotal = 0;
+      for (var d = 0; d < demandArr.length; d++) demandTotal += demandArr[d].value;
+      for (var e = 0; e < demandArr.length; e++) {
+        demandArr[e].pct = demandTotal ? Math.round(demandArr[e].value / demandTotal * 100) : 0;
+      }
+
+      // 趋势数据
+      var trendDays = trends.days || [];
+      var trendUsers = trends.new_users || [];
+      var trendOrders = trends.new_orders || [];
+      var trendUserMax = 1;
+      var trendOrderMax = 1;
+      for (var u = 0; u < trendUsers.length; u++) {
+        if (trendUsers[u] > trendUserMax) trendUserMax = trendUsers[u];
+      }
+      for (var o = 0; o < trendOrders.length; o++) {
+        if (trendOrders[o] > trendOrderMax) trendOrderMax = trendOrders[o];
+      }
+
+      that.setData({
+        statsDetail: overview,
+        statsDetailLoading: false,
+        roleDist: roleArr,
+        certDist: certArr,
+        orderDist: orderArr,
+        demandDist: demandArr,
+        trendDays: trendDays,
+        trendUsers: trendUsers,
+        trendOrders: trendOrders,
+        trendUserMax: trendUserMax,
+        trendOrderMax: trendOrderMax
+      });
+
+      wx.stopPullDownRefresh();
+    }).catch(function () {
+      that.setData({ statsDetailLoading: false });
+      wx.stopPullDownRefresh();
+    });
+  },
+
   // ============================================================
   // 管理主 Tab 切换
   // ============================================================
@@ -278,6 +401,8 @@ Page({
       if (this.data.conversationList.length === 0) {
         this._loadConversations(true);
       }
+    } else if (tab === 'stats') {
+      this._loadStatsDetail();
     }
   },
 
