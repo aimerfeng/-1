@@ -35,7 +35,7 @@ var ADMIN_ENTRIES = [
   { key: 'user_audit', icon: '✅', label: '用户审核', type: 'navigate', url: '/pages/admin/admin' },
   { key: 'fabric_search', icon: '🔍', label: '面料查询', type: 'switchTab', url: '/pages/fabric/list/list' },
   { key: 'order_manage', icon: '📋', label: '订单管理', type: 'navigate', url: '/pages/order/list/list' },
-  { key: 'data_stats', icon: '📊', label: '数据统计', type: 'navigate', url: '/pages/admin/admin' }
+  { key: 'data_stats', icon: '📊', label: '数据统计', type: 'navigate', url: '/pages/admin/admin?tab=stats' }
 ];
 
 /** 未登录时的默认功能入口 */

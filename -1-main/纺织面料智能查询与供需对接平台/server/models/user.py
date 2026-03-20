@@ -31,6 +31,7 @@ class User(db.Model):
     company_name = db.Column(db.String(200), nullable=True)
     contact_name = db.Column(db.String(100), nullable=True)
     address = db.Column(db.String(500), nullable=True)
+    avatar = db.Column(db.String(500), nullable=True)
     certification_status = db.Column(
         db.Enum('pending', 'approved', 'rejected', name='certification_status'),
         default='pending',
@@ -79,6 +80,7 @@ class User(db.Model):
             'company_name': self.company_name,
             'contact_name': self.contact_name,
             'address': self.address,
+            'avatar': self.avatar,
             'certification_status': self.certification_status,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None,

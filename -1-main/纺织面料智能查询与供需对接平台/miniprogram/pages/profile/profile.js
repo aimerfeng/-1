@@ -104,13 +104,21 @@ Page({
     var certStatus = user.certification_status || '';
     var certStatusText = CERT_STATUS_MAP[certStatus] || '';
     var avatarLetter = '用';
-    
+
     if (user.contact_name) {
       avatarLetter = user.contact_name.charAt(0);
     } else if (user.company_name) {
       avatarLetter = user.company_name.charAt(0);
     } else if (user.phone) {
       avatarLetter = user.phone.charAt(0);
+    }
+
+    // 构建头像完整 URL
+    if (user.avatar && !user.avatarUrl) {
+      var app = getApp();
+      var baseUrl = (app && app.globalData && app.globalData.baseUrl) || 'http://127.0.0.1:5000/api';
+      var serverRoot = baseUrl.replace(/\/api\/?$/, '');
+      user.avatarUrl = serverRoot + user.avatar;
     }
 
     this.setData({
@@ -164,7 +172,47 @@ Page({
   },
 
   onAvatarTap: function () {
-    wx.showToast({ title: '头像功能开发中', icon: 'none' });
+    var that = this;
+    wx.chooseMedia({
+      count: 1,
+      mediaType: ['image'],
+      sourceType: ['album', 'camera'],
+      sizeType: ['compressed'],
+      success: function (res) {
+        var tempFilePath = res.tempFiles[0].tempFilePath;
+        var app = getApp();
+        var baseUrl = (app && app.globalData && app.globalData.baseUrl) || 'http://127.0.0.1:5000/api';
+        var token = auth.getToken();
+
+        wx.showLoading({ title: '上传中...', mask: true });
+
+        wx.uploadFile({
+          url: baseUrl + '/auth/avatar',
+          filePath: tempFilePath,
+          name: 'file',
+          header: { 'Authorization': 'Bearer ' + token },
+          success: function (uploadRes) {
+            wx.hideLoading();
+            try {
+              var data = JSON.parse(uploadRes.data);
+              if (data.user) {
+                wx.setStorageSync('userInfo', data.user);
+                that._setUserData(data.user);
+                wx.showToast({ title: '头像已更新', icon: 'success' });
+              } else {
+                wx.showToast({ title: data.message || '上传失败', icon: 'none' });
+              }
+            } catch (e) {
+              wx.showToast({ title: '上传失败', icon: 'none' });
+            }
+          },
+          fail: function () {
+            wx.hideLoading();
+            wx.showToast({ title: '上传失败，请重试', icon: 'none' });
+          }
+        });
+      }
+    });
   },
 
   goLogin: function () {

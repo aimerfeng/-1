@@ -9,7 +9,9 @@ Endpoints:
     POST /api/auth/login      - Phone + password login
 """
 
+import os
 import re
+import time
 from functools import wraps
 
 import requests as http_requests
@@ -250,4 +252,53 @@ def update_profile():
 
     db.session.commit()
     return jsonify({'user': user.to_dict()})
+
+
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif', 'webp'}
+
+
+def _allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+
+@auth_bp.route('/avatar', methods=['POST'])
+@jwt_required()
+def upload_avatar():
+    """Upload user avatar image.
+
+    Accepts multipart/form-data with a 'file' field.
+    Saves to server/static/avatars/ and updates user.avatar.
+    """
+    user_id = int(get_jwt_identity())
+    user = db.session.get(User, user_id)
+    if not user:
+        return jsonify({'code': 404, 'message': '用户不存在'}), 404
+
+    if 'file' not in request.files:
+        return jsonify({'code': 400, 'message': '缺少文件'}), 400
+
+    file = request.files['file']
+    if not file or not file.filename:
+        return jsonify({'code': 400, 'message': '文件为空'}), 400
+
+    if not _allowed_file(file.filename):
+        return jsonify({'code': 400, 'message': '不支持的文件格式'}), 400
+
+    ext = file.filename.rsplit('.', 1)[1].lower()
+    filename = f'avatar_{user_id}_{int(time.time())}.{ext}'
+
+    upload_dir = os.path.join(current_app.root_path, 'static', 'avatars')
+    os.makedirs(upload_dir, exist_ok=True)
+
+    filepath = os.path.join(upload_dir, filename)
+    file.save(filepath)
+
+    avatar_url = f'/static/avatars/{filename}'
+    user.avatar = avatar_url
+    db.session.commit()
+
+    return jsonify({
+        'avatar_url': avatar_url,
+        'user': user.to_dict(),
+    }), 200
 
