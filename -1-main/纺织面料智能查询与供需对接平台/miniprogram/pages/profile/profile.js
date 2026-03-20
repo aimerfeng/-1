@@ -193,6 +193,15 @@ Page({
           header: { 'Authorization': 'Bearer ' + token },
           success: function (uploadRes) {
             wx.hideLoading();
+            if (uploadRes.statusCode !== 200) {
+              try {
+                var errData = JSON.parse(uploadRes.data);
+                wx.showToast({ title: errData.message || '上传失败', icon: 'none' });
+              } catch (e) {
+                wx.showToast({ title: '上传失败', icon: 'none' });
+              }
+              return;
+            }
             try {
               var data = JSON.parse(uploadRes.data);
               if (data.user) {

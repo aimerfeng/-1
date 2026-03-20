@@ -1,11 +1,15 @@
 """Flask application factory module."""
 
 import os
+import logging
 from flask import Flask, send_from_directory
 from flask_cors import CORS
+from sqlalchemy import inspect, text
 
 from server.config import config_by_name
 from server.extensions import db, jwt
+
+logger = logging.getLogger(__name__)
 
 
 def create_app(config_name="development"):
@@ -25,6 +29,11 @@ def create_app(config_name="development"):
     @app.route('/static/uploads/fabrics/<path:filename>')
     def serve_fabric_image(filename):
         return send_from_directory(os.path.join(static_folder, 'uploads', 'fabrics'), filename)
+
+    @app.route('/static/avatars/<path:filename>')
+    def serve_avatar_image(filename):
+        return send_from_directory(os.path.join(static_folder, 'avatars'), filename)
+
     app.config.from_object(config_by_name[config_name])
 
     # Initialize extensions
@@ -39,8 +48,41 @@ def create_app(config_name="development"):
     # Create database tables
     with app.app_context():
         db.create_all()
+        _auto_migrate(app)
 
     return app
+
+
+def _auto_migrate(app):
+    """Add missing columns to existing tables.
+
+    SQLAlchemy's create_all() only creates new tables; it does not
+    alter existing ones.  This helper inspects each model's columns
+    and issues ALTER TABLE … ADD COLUMN for any that are absent in
+    the live database.  Only supports SQLite and MySQL.
+    """
+    inspector = inspect(db.engine)
+    meta = db.metadata
+
+    for table_name, table in meta.tables.items():
+        if not inspector.has_table(table_name):
+            continue
+        existing = {col['name'] for col in inspector.get_columns(table_name)}
+        for col in table.columns:
+            if col.name not in existing:
+                col_type = col.type.compile(db.engine.dialect)
+                nullable = 'NULL' if col.nullable else 'NOT NULL'
+                default = ''
+                if col.default is not None:
+                    default = f" DEFAULT '{col.default.arg}'" if isinstance(col.default.arg, str) else f" DEFAULT {col.default.arg}"
+                sql = f'ALTER TABLE {table_name} ADD COLUMN {col.name} {col_type} {nullable}{default}'
+                try:
+                    db.session.execute(text(sql))
+                    db.session.commit()
+                    logger.info('Auto-migrate: added column %s.%s', table_name, col.name)
+                except Exception as e:
+                    db.session.rollback()
+                    logger.warning('Auto-migrate: skip %s.%s: %s', table_name, col.name, e)
 
 
 def _register_blueprints(app):
