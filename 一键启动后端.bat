@@ -72,8 +72,9 @@ REM ----------------------------------------
 echo.
 echo [4/4] Checking database...
 if not exist "instance\dev.db" (
-    echo         First run - initializing database and test accounts...
-    python seed_users.py
+    echo         First run - initializing full demo data...
+    echo         (users, fabrics, demands, quotes, chats, orders)
+    python init_dev_data.py
     echo.
     echo  ================================================
     echo           Test Accounts
@@ -81,8 +82,8 @@ if not exist "instance\dev.db" (
     echo   Role        Phone          Password
     echo  ------------------------------------------------
     echo   Admin       13800000001    admin123
-    echo   Buyer       13800000002    buyer123
-    echo   Supplier    13800000003    supplier123
+    echo   Buyer       13800000010    buyer123
+    echo   Supplier    13800000020    supplier123
     echo  ================================================
     echo.
 ) else (
