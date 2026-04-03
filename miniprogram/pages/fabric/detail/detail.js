@@ -5,6 +5,7 @@
  */
 var request = require('../../../utils/request.js');
 var auth = require('../../../utils/auth.js');
+var util = require('../../../utils/util.js');
 
 Page({
   data: {
@@ -63,6 +64,12 @@ Page({
       if (!fabric.images || !Array.isArray(fabric.images)) {
         fabric.images = [];
       }
+      var normalizedImages = [];
+      for (var i = 0; i < fabric.images.length; i++) {
+        var normalized = util.normalizeImageUrl(fabric.images[i]);
+        if (normalized) normalizedImages.push(normalized);
+      }
+      fabric.images = normalizedImages;
 
       var paramList = that._buildParamList(fabric);
 

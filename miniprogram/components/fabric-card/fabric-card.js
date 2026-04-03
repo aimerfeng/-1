@@ -68,7 +68,7 @@ Component({
       // 取第一张图片作为缩略图
       var thumbUrl = '';
       if (fabric.images && fabric.images.length > 0) {
-        thumbUrl = fabric.images[0];
+        thumbUrl = util.normalizeImageUrl(fabric.images[0]);
       }
 
       this.setData({

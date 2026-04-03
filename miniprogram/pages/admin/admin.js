@@ -203,7 +203,7 @@ Page({
    */
   _checkAdminRole: function () {
     var app = getApp();
-    var userInfo = app.globalData.userInfo;
+    var userInfo = (app && app.globalData && app.globalData.userInfo) || auth.getUserInfo() || wx.getStorageSync('userInfo');
 
     if (!userInfo || userInfo.role !== 'admin') {
       this.setData({ isAdmin: false, loading: false });
@@ -212,6 +212,12 @@ Page({
         wx.navigateBack();
       }, 1500);
       return;
+    }
+
+    // 回填全局态，避免冷启动时 globalData 为空导致误判
+    if (app && app.globalData) {
+      app.globalData.userInfo = userInfo;
+      app.globalData.isLoggedIn = true;
     }
 
     this.setData({ isAdmin: true });

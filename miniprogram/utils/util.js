@@ -216,6 +216,39 @@ function getSampleStatusText(status) {
   return SAMPLE_STATUS_MAP[status] || status || '';
 }
 
+/**
+ * 标准化图片 URL，避免小程序环境下的非法地址问题
+ * 1) localhost 替换为 127.0.0.1
+ * 2) 相对路径 /static/... 自动补全服务端根地址
+ * 3) 明确拦截 http 远程图，返回空字符串交给调用方走占位图
+ * @param {string} url
+ * @returns {string}
+ */
+function normalizeImageUrl(url) {
+  if (!url || typeof url !== 'string') return '';
+  var result = url.trim();
+  if (!result) return '';
+
+  // 相对路径转绝对路径
+  if (result.indexOf('/static/') === 0) {
+    var app = typeof getApp === 'function' ? getApp() : null;
+    var baseUrl = (app && app.globalData && app.globalData.baseUrl) || 'http://127.0.0.1:5000/api';
+    var serverRoot = baseUrl.replace(/\/api\/?$/, '');
+    result = serverRoot + result;
+  }
+
+  // localhost 统一替换，避免部分环境解析问题
+  result = result.replace(/^http:\/\/localhost/i, 'http://127.0.0.1');
+  result = result.replace(/^https:\/\/localhost/i, 'https://127.0.0.1');
+
+  // 微信环境对 HTTP 图片限制严格，直接降级占位图，避免渲染报错
+  if (/^http:\/\//i.test(result)) {
+    return '';
+  }
+
+  return result;
+}
+
 module.exports = {
   formatDate: formatDate,
   padZero: padZero,
@@ -227,6 +260,7 @@ module.exports = {
   truncateText: truncateText,
   getOrderStatusText: getOrderStatusText,
   getSampleStatusText: getSampleStatusText,
+  normalizeImageUrl: normalizeImageUrl,
   ORDER_STATUS_MAP: ORDER_STATUS_MAP,
   SAMPLE_STATUS_MAP: SAMPLE_STATUS_MAP
 };
