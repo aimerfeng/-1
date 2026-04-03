@@ -51,9 +51,11 @@ if not exist "venv" (
 call venv\Scripts\activate.bat
 
 REM ----------------------------------------
-REM Database path (force unified SQLite file)
+REM Database path (force unified SQLite file, absolute path)
 REM ----------------------------------------
-set "DATABASE_URL=sqlite:///instance/dev.db"
+if not exist "instance" mkdir "instance"
+set "DB_PATH=%CD%\instance\dev.db"
+set "DATABASE_URL=sqlite:///%DB_PATH:\=/%"
 
 REM ----------------------------------------
 REM 3. Install dependencies

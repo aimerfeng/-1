@@ -3,7 +3,10 @@
 Run: python seed_users.py
 """
 import os
-os.environ.setdefault("DATABASE_URL", "sqlite:///instance/dev.db")
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+_INSTANCE_DIR = os.path.join(_BASE_DIR, "instance")
+os.makedirs(_INSTANCE_DIR, exist_ok=True)
+os.environ.setdefault("DATABASE_URL", "sqlite:///" + os.path.join(_INSTANCE_DIR, "dev.db"))
 
 from server.app import create_app
 from server.extensions import db
