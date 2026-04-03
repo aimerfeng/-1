@@ -27,6 +27,11 @@ Page({
   },
 
   loadStats: function () {
+    if (!auth.isLoggedIn()) {
+      this.setData({ loading: true, isAdmin: false });
+      this._loadGuestStats();
+      return;
+    }
     var role = auth.getUserRole();
     var isAdmin = role === 'admin';
     this.setData({ loading: true, isAdmin: isAdmin });
@@ -35,6 +40,49 @@ Page({
       return;
     }
     this._loadCommonStats();
+  },
+
+  _loadGuestStats: function () {
+    var that = this;
+    var stats = {
+      userCount: 0,
+      fabricCount: 0,
+      demandCount: 0,
+      orderCount: 0,
+      conversationCount: 0,
+      favoriteCount: 0
+    };
+    var done = 0;
+
+    function finishOne() {
+      done += 1;
+      if (done >= 2) {
+        that.setData({
+          loading: false,
+          stats: stats,
+          trendDays: [],
+          trendOrders: [],
+          trendMax: 1
+        });
+        wx.stopPullDownRefresh();
+      }
+    }
+
+    request.get('/fabrics', { page: 1, per_page: 1 }, { showError: false }).then(function (res) {
+      stats.fabricCount = res.total || 0;
+      finishOne();
+    }).catch(function () {
+      stats.fabricCount = 0;
+      finishOne();
+    });
+
+    request.get('/demands', { page: 1, per_page: 1 }, { showError: false }).then(function (res) {
+      stats.demandCount = res.total || 0;
+      finishOne();
+    }).catch(function () {
+      stats.demandCount = 0;
+      finishOne();
+    });
   },
 
   _loadCommonStats: function () {

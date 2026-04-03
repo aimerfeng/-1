@@ -45,7 +45,8 @@ var DEFAULT_ENTRIES = [
   { key: 'fabric_search', icon: '🔍', label: '面料查询', type: 'switchTab', url: '/pages/fabric/list/list' },
   { key: 'demand_publish', icon: '📝', label: '需求发布', type: 'navigate', url: '' },
   { key: 'sample_manage', icon: '📦', label: '样品管理', type: 'navigate', url: '' },
-  { key: 'order_manage', icon: '📋', label: '订单管理', type: 'navigate', url: '' }
+  { key: 'order_manage', icon: '📋', label: '订单管理', type: 'navigate', url: '' },
+  { key: 'data_stats', icon: '📊', label: '数据统计', type: 'navigate', url: '/pages/stats/stats' }
 ];
 
 Page({
@@ -112,6 +113,14 @@ Page({
 
     var userRole = auth.getUserRole();
     var userInfo = auth.getUserInfo();
+
+    // 兜底修复：token 存在但 userInfo 丢失/不完整时，视为未登录，避免首页入口状态异常
+    if (isLoggedIn && (!userInfo || !userInfo.role)) {
+      auth.clearToken();
+      isLoggedIn = false;
+      userRole = null;
+      userInfo = null;
+    }
 
     // 设置功能入口
     var entries = this._getEntriesByRole(userRole, isLoggedIn);
@@ -283,7 +292,7 @@ Page({
     if (!entry) return;
 
     // 未登录时，除面料查询外需要先登录
-    if (!this.data.isLoggedIn && entry.key !== 'fabric_search') {
+    if (!this.data.isLoggedIn && entry.key !== 'fabric_search' && entry.key !== 'data_stats') {
       wx.navigateTo({ url: '/pages/login/login' });
       return;
     }
