@@ -51,6 +51,11 @@ if not exist "venv" (
 call venv\Scripts\activate.bat
 
 REM ----------------------------------------
+REM Database path (force unified SQLite file)
+REM ----------------------------------------
+set "DATABASE_URL=sqlite:///instance/dev.db"
+
+REM ----------------------------------------
 REM 3. Install dependencies
 REM ----------------------------------------
 echo.
@@ -97,6 +102,7 @@ echo.
 echo ==================================================
 echo   Backend server starting...
 echo   URL: http://localhost:5000
+echo   Database: instance/dev.db
 echo   Press Ctrl+C to stop
 echo ==================================================
 echo.
