@@ -3,7 +3,7 @@
 Run: python seed_users.py
 """
 import os
-os.environ.setdefault("DATABASE_URL", "sqlite:///dev.db")
+os.environ.setdefault("DATABASE_URL", "sqlite:///instance/dev.db")
 
 from server.app import create_app
 from server.extensions import db
