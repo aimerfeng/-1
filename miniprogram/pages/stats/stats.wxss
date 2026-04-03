@@ -1,0 +1,146 @@
+.stats-page {
+  min-height: 100vh;
+  padding: 24rpx;
+  background-color: #f6f8fc;
+}
+
+.stats-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+
+.stats-header__title {
+  display: block;
+  font-size: 36rpx;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.stats-header__desc {
+  display: block;
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+.stats-header__home-btn {
+  height: 56rpx;
+  padding: 0 20rpx;
+  border-radius: 999rpx;
+  border: 2rpx solid #d1d5db;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+}
+
+.stats-header__home-text {
+  font-size: 24rpx;
+  color: #374151;
+}
+
+.stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -8rpx;
+}
+
+.stats-card {
+  width: calc(50% - 16rpx);
+  margin: 8rpx;
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.06);
+}
+
+.stats-card__label {
+  display: block;
+  font-size: 24rpx;
+  color: #6b7280;
+}
+
+.stats-card__value {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 44rpx;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.trend-wrap {
+  margin-top: 24rpx;
+  background-color: #ffffff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-shadow: 0 8rpx 24rpx rgba(15, 23, 42, 0.06);
+}
+
+.trend-wrap__title {
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #111827;
+}
+
+.trend-chart {
+  margin-top: 16rpx;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.trend-item {
+  width: 13%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.trend-item__bar-wrap {
+  height: 150rpx;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.trend-item__bar {
+  width: 28rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(180deg, #60a5fa 0%, #2563eb 100%);
+}
+
+.trend-item__val {
+  margin-bottom: 8rpx;
+  font-size: 20rpx;
+  color: #374151;
+}
+
+.trend-item__day {
+  margin-top: 8rpx;
+  font-size: 20rpx;
+  color: #6b7280;
+}
+
+.stats-loading {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 -8rpx;
+}
+
+.stats-loading__card {
+  width: calc(50% - 16rpx);
+  margin: 8rpx;
+  height: 150rpx;
+  border-radius: 16rpx;
+  background: linear-gradient(90deg, #edf2f7 25%, #f7fafc 50%, #edf2f7 75%);
+  background-size: 200% 100%;
+  animation: loadingShimmer 1.2s infinite;
+}
+
+@keyframes loadingShimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

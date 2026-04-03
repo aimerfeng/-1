@@ -19,7 +19,8 @@
     "pages/order/create/create",
     "pages/order/detail/detail",
     "pages/favorites/favorites",
-    "pages/admin/admin"
+    "pages/admin/admin",
+    "pages/stats/stats"
   ],
   "window": {
     "navigationBarBackgroundColor": "#7EB8DA",

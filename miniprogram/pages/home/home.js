@@ -19,7 +19,8 @@ var BUYER_ENTRIES = [
   { key: 'fabric_search', icon: '🔍', label: '面料查询', type: 'switchTab', url: '/pages/fabric/list/list' },
   { key: 'demand_publish', icon: '📝', label: '我的需求', type: 'navigate', url: '/pages/demand/list/list' },
   { key: 'sample_manage', icon: '📦', label: '样品管理', type: 'navigate', url: '/pages/sample/sample' },
-  { key: 'order_manage', icon: '📋', label: '订单管理', type: 'navigate', url: '/pages/order/list/list' }
+  { key: 'order_manage', icon: '📋', label: '订单管理', type: 'navigate', url: '/pages/order/list/list' },
+  { key: 'data_stats', icon: '📊', label: '数据统计', type: 'navigate', url: '/pages/stats/stats' }
 ];
 
 /** 供应商功能入口 */
@@ -27,7 +28,8 @@ var SUPPLIER_ENTRIES = [
   { key: 'fabric_manage', icon: '🧵', label: '面料管理', type: 'navigate', url: '/pages/fabric/manage/manage' },
   { key: 'demand_browse', icon: '📄', label: '需求浏览', type: 'navigate', url: '/pages/demand/list/list' },
   { key: 'sample_manage', icon: '📦', label: '样品管理', type: 'navigate', url: '/pages/sample/sample' },
-  { key: 'order_manage', icon: '📋', label: '订单管理', type: 'navigate', url: '/pages/order/list/list' }
+  { key: 'order_manage', icon: '📋', label: '订单管理', type: 'navigate', url: '/pages/order/list/list' },
+  { key: 'data_stats', icon: '📊', label: '数据统计', type: 'navigate', url: '/pages/stats/stats' }
 ];
 
 /** 管理员功能入口 */
@@ -35,7 +37,7 @@ var ADMIN_ENTRIES = [
   { key: 'user_audit', icon: '✅', label: '用户审核', type: 'navigate', url: '/pages/admin/admin' },
   { key: 'fabric_search', icon: '🔍', label: '面料查询', type: 'switchTab', url: '/pages/fabric/list/list' },
   { key: 'order_manage', icon: '📋', label: '订单管理', type: 'navigate', url: '/pages/order/list/list' },
-  { key: 'data_stats', icon: '📊', label: '数据统计', type: 'navigate', url: '/pages/admin/admin?tab=stats' }
+  { key: 'data_stats', icon: '📊', label: '数据统计', type: 'navigate', url: '/pages/stats/stats' }
 ];
 
 /** 未登录时的默认功能入口 */

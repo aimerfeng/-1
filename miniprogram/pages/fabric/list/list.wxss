@@ -118,6 +118,32 @@
   background-color: var(--color-accent);
 }
 
+.toolbar__right {
+  display: flex;
+  align-items: center;
+}
+
+.toolbar__home-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 52rpx;
+  padding: 0 20rpx;
+  margin-right: var(--spacing-sm);
+  border-radius: var(--radius-round);
+  border: 2rpx solid var(--color-border);
+  background-color: var(--color-bg-page);
+}
+
+.toolbar__home-btn:active {
+  background-color: var(--color-divider);
+}
+
+.toolbar__home-text {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+}
+
 .toolbar__count {
   font-size: var(--font-size-sm);
   color: var(--color-text-secondary);

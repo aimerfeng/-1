@@ -1,0 +1,57 @@
+<view class="stats-page page-fade-in">
+  <view class="stats-header">
+    <view class="stats-header__title-wrap">
+      <text class="stats-header__title">数据统计看板</text>
+      <text class="stats-header__desc">下拉可刷新最新数据</text>
+    </view>
+    <view class="stats-header__home-btn" bindtap="goHome">
+      <text class="stats-header__home-text">返回首页</text>
+    </view>
+  </view>
+
+  <view wx:if="{{loading}}" class="stats-loading">
+    <view class="stats-loading__card" wx:for="{{4}}" wx:key="*this"></view>
+  </view>
+
+  <block wx:else>
+    <view class="stats-grid">
+      <view class="stats-card">
+        <text class="stats-card__label">面料总数</text>
+        <text class="stats-card__value">{{stats.fabricCount}}</text>
+      </view>
+      <view class="stats-card">
+        <text class="stats-card__label">需求总数</text>
+        <text class="stats-card__value">{{stats.demandCount}}</text>
+      </view>
+      <view class="stats-card">
+        <text class="stats-card__label">订单总数</text>
+        <text class="stats-card__value">{{stats.orderCount}}</text>
+      </view>
+      <view class="stats-card">
+        <text class="stats-card__label">会话总数</text>
+        <text class="stats-card__value">{{stats.conversationCount}}</text>
+      </view>
+      <view class="stats-card">
+        <text class="stats-card__label">收藏总数</text>
+        <text class="stats-card__value">{{stats.favoriteCount}}</text>
+      </view>
+      <view class="stats-card" wx:if="{{isAdmin}}">
+        <text class="stats-card__label">平台用户总数</text>
+        <text class="stats-card__value">{{stats.userCount}}</text>
+      </view>
+    </view>
+
+    <view class="trend-wrap" wx:if="{{isAdmin && trendDays.length > 0}}">
+      <text class="trend-wrap__title">近7天新增订单</text>
+      <view class="trend-chart">
+        <view class="trend-item" wx:for="{{trendDays}}" wx:key="*this">
+          <view class="trend-item__bar-wrap">
+            <text class="trend-item__val" wx:if="{{trendOrders[index] > 0}}">{{trendOrders[index]}}</text>
+            <view class="trend-item__bar" style="height: {{trendOrders[index] / trendMax * 120}}rpx;"></view>
+          </view>
+          <text class="trend-item__day">{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

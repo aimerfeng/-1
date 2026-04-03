@@ -37,6 +37,9 @@
       </view>
     </view>
     <view class="toolbar__right">
+      <view class="toolbar__home-btn" bindtap="goHome">
+        <text class="toolbar__home-text">返回首页</text>
+      </view>
       <text class="toolbar__count" wx:if="{{!loading}}">共 {{total}} 个面料</text>
     </view>
   </view>

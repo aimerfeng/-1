@@ -440,6 +440,15 @@ Page({
   },
 
   /**
+   * 返回首页
+   */
+  goHome: function () {
+    wx.switchTab({
+      url: '/pages/home/home'
+    });
+  },
+
+  /**
    * 检查面料是否在对比列表中
    */
   isInCompare: function (fabricId) {
