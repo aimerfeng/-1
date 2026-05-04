@@ -34,21 +34,75 @@ Page({
   },
 
   onLoad: function (options) {
-    var demandId = options.demand_id || options.id;
-    if (!demandId) {
-      wx.showToast({
-        title: '参数错误',
-        icon: 'none'
+    var demandId = options.demand_id || options.demandId || options.id;
+    if (demandId) {
+      this._initDemand(demandId);
+      return;
+    }
+
+    this._resolveLatestDemand();
+  },
+
+  /**
+   * 初始化当前需求并加载数据
+   * @param {string|number} demandId
+   */
+  _initDemand: function (demandId) {
+    var parsedDemandId = parseInt(demandId, 10);
+    if (!parsedDemandId) {
+      this.setData({
+        loading: false,
+        loadError: false,
+        pageReady: true,
+        demandId: null,
+        demandTitle: '采购需求',
+        matchList: [],
+        total: 0
       });
       return;
     }
 
     this.setData({
-      demandId: parseInt(demandId, 10)
+      demandId: parsedDemandId
     });
 
     this._loadDemandInfo();
     this._loadMatches();
+  },
+
+  /**
+   * 当页面入口未传 demand_id 时，自动回退到当前用户最新一条需求
+   */
+  _resolveLatestDemand: function () {
+    var that = this;
+
+    request.get('/demands', {
+      page: 1,
+      per_page: 1
+    }, {
+      showError: false
+    }).then(function (res) {
+      var items = res.items || res.demands || [];
+      if (!items.length || !items[0].id) {
+        that.setData({
+          loading: false,
+          loadError: false,
+          pageReady: true,
+          demandId: null,
+          demandTitle: '采购需求',
+          matchList: [],
+          total: 0
+        });
+        return;
+      }
+
+      that._initDemand(items[0].id);
+    }).catch(function () {
+      that.setData({
+        loading: false,
+        loadError: true
+      });
+    });
   },
 
   /**
