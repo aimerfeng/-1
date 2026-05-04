@@ -16,9 +16,9 @@ app = create_app("development")
 
 with app.app_context():
     accounts = [
-        {"phone": "13800000001", "role": "admin",    "password": "admin123",    "company_name": "平台管理", "contact_name": "管理员",  "certification_status": "approved"},
-        {"phone": "13800000002", "role": "buyer",    "password": "buyer123",    "company_name": "测试采购公司", "contact_name": "张采购", "certification_status": "approved"},
-        {"phone": "13800000003", "role": "supplier", "password": "supplier123", "company_name": "测试供应公司", "contact_name": "李供应", "certification_status": "approved"},
+        {"phone": "13800000001", "role": "admin",    "password": "admin123",    "company_name": "平台管理中心", "contact_name": "系统管理员", "certification_status": "approved"},
+        {"phone": "13800000010", "role": "buyer",    "password": "buyer123",    "company_name": "杭州锦绣服饰有限公司", "contact_name": "张明", "certification_status": "approved"},
+        {"phone": "13800000020", "role": "supplier", "password": "supplier123", "company_name": "绍兴柯桥恒丰纺织有限公司", "contact_name": "王建国", "certification_status": "approved"},
     ]
 
     for acc in accounts:
@@ -39,3 +39,6 @@ with app.app_context():
 
     db.session.commit()
     print("\n测试账号就绪！用手机号+密码登录即可。")
+    print("  管理员  13800000001 / admin123")
+    print("  采购方  13800000010 / buyer123")
+    print("  供应商  13800000020 / supplier123")

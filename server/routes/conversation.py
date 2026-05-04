@@ -6,7 +6,7 @@ including counterparty info, demand title, and unread message counts.
 Endpoints:
     GET /api/conversations - List conversations (role-based, paginated)
     GET /api/conversations/<conv_id>/messages - List messages (paginated, chronological)
-    POST /api/conversations/<conv_id>/messages - Send a message (participants only)
+    POST /api/conversations/<conv_id>/messages - Send a message (participants or admin)
 """
 
 from datetime import datetime
@@ -244,8 +244,7 @@ def get_messages(conv_id):
 def send_message(conv_id):
     """Send a message in a conversation.
 
-    Only participants (buyer/supplier) can send messages.
-    Admin can view but NOT send messages (returns 403).
+    Participants (buyer/supplier) and admin can send messages.
 
     Creates a ChatMessage with msg_type='text' and updates the
     conversation's last_message_at and last_message_preview.
@@ -259,7 +258,7 @@ def send_message(conv_id):
     Returns:
         201: Created message
         400: Empty content
-        403: Admin or non-participant
+        403: Non-participant and non-admin
         404: Conversation not found
     """
     user_id = int(get_jwt_identity())
@@ -272,13 +271,9 @@ def send_message(conv_id):
     if conv is None:
         return jsonify({'code': 404, 'message': '会话不存在'}), 404
 
-    # Admin can view but not send
-    if user.role == 'admin':
-        return jsonify({'code': 403, 'message': '管理员仅可查看会话'}), 403
-
-    # Must be a participant
+    is_admin = user.role == 'admin'
     is_participant = user_id in (conv.buyer_id, conv.supplier_id)
-    if not is_participant:
+    if not is_participant and not is_admin:
         return jsonify({'code': 403, 'message': '无权在此会话中发送消息'}), 403
 
     # Validate content

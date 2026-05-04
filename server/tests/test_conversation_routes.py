@@ -18,7 +18,7 @@ Tests the GET /api/conversations/<conv_id>/messages endpoint:
 
 Tests the POST /api/conversations/<conv_id>/messages endpoint:
 - Participants can send messages
-- Admin cannot send messages
+- Admin can send messages
 - Non-participants cannot send messages
 - Empty content validation
 - Conversation metadata updated on send
@@ -848,16 +848,18 @@ class TestSendMessage:
         assert len(conversation.last_message_preview) == 100
         assert conversation.last_message_preview == long_content[:100]
 
-    def test_admin_cannot_send_message(self, client, buyer, supplier, admin, conversation):
-        """Admin should NOT be able to send messages (read-only)."""
+    def test_admin_can_send_message(self, client, buyer, supplier, admin, conversation):
+        """Admin should be able to send messages in any conversation."""
         resp = client.post(
             f'/api/conversations/{conversation.id}/messages',
             json={'content': '管理员消息'},
             headers=_auth_header(admin),
         )
-        assert resp.status_code == 403
+        assert resp.status_code == 201
         data = resp.get_json()
-        assert data['message'] == '管理员仅可查看会话'
+        assert data['content'] == '管理员消息'
+        assert data['sender_id'] == admin.id
+        assert data['conversation_id'] == conversation.id
 
     def test_non_participant_cannot_send(self, client, buyer, supplier, outsider, conversation):
         """Non-participant should NOT be able to send messages."""
