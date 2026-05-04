@@ -61,7 +61,8 @@ Page({
 
     /** 提交成功弹窗 */
     showSuccess: false,
-    matchCount: 0
+    matchCount: 0,
+    createdDemandId: null
   },
 
   onLoad: function () {
@@ -333,7 +334,8 @@ Page({
       that.setData({
         submitting: false,
         showSuccess: true,
-        matchCount: res.match_count || 0
+        matchCount: res.match_count || 0,
+        createdDemandId: res.id || null
       });
     }).catch(function (err) {
       that.setData({ submitting: false });
@@ -355,7 +357,15 @@ Page({
   /** 查看匹配结果 */
   goToMatches: function () {
     this.setData({ showSuccess: false });
-    // 返回上一页或跳转到需求列表
+
+    if (this.data.matchCount > 0 && this.data.createdDemandId) {
+      wx.redirectTo({
+        url: '/pages/demand/match/match?demand_id=' + this.data.createdDemandId
+      });
+      return;
+    }
+
+    // 返回上一页或跳转到首页
     wx.navigateBack({
       fail: function () {
         wx.switchTab({ url: '/pages/home/home' });
@@ -368,6 +378,7 @@ Page({
     this.setData({
       showSuccess: false,
       matchCount: 0,
+      createdDemandId: null,
       form: {
         title: '',
         composition: '',

@@ -68,7 +68,9 @@ Page({
     /** 推荐区域标题 */
     recommendTitle: '最新推荐',
     /** 是否有推荐数据 */
-    hasRecommend: false
+    hasRecommend: false,
+    /** 采购方当前推荐对应的需求ID */
+    recommendDemandId: null
   },
 
   onLoad: function () {
@@ -140,7 +142,8 @@ Page({
       this.setData({
         loading: false,
         recommendList: [],
-        hasRecommend: false
+        hasRecommend: false,
+        recommendDemandId: null
       });
       if (typeof callback === 'function') callback();
     }
@@ -174,14 +177,23 @@ Page({
     this.setData({ loading: true, recommendLoading: true });
 
     if (role === 'buyer') {
-      this.setData({ recommendTitle: '最新匹配推荐' });
+      this.setData({
+        recommendTitle: '最新匹配推荐',
+        recommendDemandId: null
+      });
       this._loadBuyerRecommendations(callback);
     } else if (role === 'supplier') {
-      this.setData({ recommendTitle: '最新面料动态' });
+      this.setData({
+        recommendTitle: '最新面料动态',
+        recommendDemandId: null
+      });
       this._loadSupplierRecommendations(callback);
     } else {
       // admin or other
-      this.setData({ recommendTitle: '最新面料' });
+      this.setData({
+        recommendTitle: '最新面料',
+        recommendDemandId: null
+      });
       this._loadLatestFabrics(callback);
     }
   },
@@ -197,6 +209,7 @@ Page({
     request.get('/demands', { page: 1, per_page: 3 }, { showError: false }).then(function (res) {
       var demands = res.items || res.demands || [];
       if (demands.length === 0) {
+        that.setData({ recommendDemandId: null });
         // 没有需求，降级展示最新面料
         that._loadLatestFabrics(callback);
         return;
@@ -204,6 +217,7 @@ Page({
 
       // 获取第一个需求的匹配结果
       var firstDemand = demands[0];
+      that.setData({ recommendDemandId: firstDemand.id });
       request.get('/demands/' + firstDemand.id + '/matches', {}, { showError: false }).then(function (matchRes) {
         var matches = matchRes.matches || matchRes.items || [];
         var fabricList = [];
@@ -327,7 +341,13 @@ Page({
    */
   onViewMoreTap: function () {
     if (this.data.userRole === 'buyer') {
-      wx.navigateTo({ url: '/pages/demand/match/match' });
+      if (this.data.recommendDemandId) {
+        wx.navigateTo({
+          url: '/pages/demand/match/match?demand_id=' + this.data.recommendDemandId
+        });
+      } else {
+        wx.navigateTo({ url: '/pages/demand/list/list' });
+      }
     } else {
       wx.switchTab({ url: '/pages/fabric/list/list' });
     }
