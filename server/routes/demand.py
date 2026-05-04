@@ -31,7 +31,7 @@ from server.services.notification import send_notification
 demand_bp = Blueprint('demand', __name__)
 
 
-def _run_matching_for_demand(demand):
+def _run_matching_for_demand(demand, notify=True):
     """Run matching engine for a demand against all active fabrics."""
     engine = MatchingEngine()
     active_fabrics = Fabric.query.filter_by(status='active').all()
@@ -47,6 +47,8 @@ def _run_matching_for_demand(demand):
         db.session.add(mr)
         created_results.append(mr)
     db.session.commit()
+    if not notify:
+        return created_results
     for mr in created_results:
         fabric = db.session.get(Fabric, mr.fabric_id)
         if fabric and fabric.supplier_id:
@@ -208,6 +210,13 @@ def get_demand_matches(demand_id):
     demand = db.session.get(Demand, demand_id)
     if demand is None:
         return jsonify({'code': 404, 'message': '\u9700\u6c42\u4e0d\u5b58\u5728'}), 404
+
+    # Backfill legacy demo data that was initialized before match results
+    # were persisted. Skip notifications here to avoid generating unread
+    # messages during a read-only query.
+    if MatchResult.query.filter_by(demand_id=demand_id).count() == 0:
+        _run_matching_for_demand(demand, notify=False)
+
     match_results = (
         MatchResult.query.filter_by(demand_id=demand_id)
         .order_by(MatchResult.score.desc()).all()

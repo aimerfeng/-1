@@ -27,7 +27,8 @@ from server.app import create_app
 from server.extensions import db
 from server.models.user import User
 from server.models.fabric import Fabric
-from server.models.demand import Demand, Quote
+from server.models.demand import Demand, MatchResult, Quote
+from server.services.matching import MatchingEngine
 
 
 def create_users():
@@ -532,6 +533,27 @@ def create_quotes(suppliers, demands):
     return quotes
 
 
+def create_match_results(demands, fabrics):
+    """为示例需求生成匹配结果数据."""
+    engine = MatchingEngine()
+    match_results = []
+
+    for demand in demands:
+        results = engine.match(demand, fabrics)
+        for result in results:
+            match_result = MatchResult(
+                demand_id=demand.id,
+                fabric_id=result['fabric_id'],
+                score=result['score'],
+                score_detail=result['score_detail'],
+            )
+            db.session.add(match_result)
+            match_results.append(match_result)
+
+    db.session.flush()
+    return match_results
+
+
 def create_messages(buyers, suppliers, demands, fabrics):
     """创建示例系统消息和会话数据"""
     from server.models.message import Message
@@ -760,6 +782,7 @@ if __name__ == '__main__':
 
         fabrics = create_fabrics(suppliers)
         demands = create_demands(buyers)
+        match_results = create_match_results(demands, fabrics)
         quotes = create_quotes(suppliers, demands)
         messages, convs = create_messages(buyers, suppliers, demands, fabrics)
         samples = create_samples(buyers, suppliers, fabrics)
@@ -772,6 +795,7 @@ if __name__ == '__main__':
         print(f'  用户: {len(users)} 个 (1管理员 + 3采购方 + 5供应商)')
         print(f'  面料: {len(fabrics)} 条')
         print(f'  需求: {len(demands)} 条')
+        print(f'  匹配结果: {len(match_results)} 条')
         print(f'  报价: {len(quotes)} 条')
         print(f'  消息: {len(messages)} 条')
         print(f'  会话: {len(convs)} 个')

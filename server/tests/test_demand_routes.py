@@ -407,6 +407,30 @@ class TestGetDemandMatches:
         for item in data['items']:
             assert 0 <= item['score'] <= 100
 
+    def test_matches_are_backfilled_for_legacy_demand(self, client, buyer_token,
+                                                       sample_fabrics):
+        token, buyer_id = buyer_token
+        demand = Demand(
+            buyer_id=buyer_id,
+            title='历史需求补齐匹配',
+            composition='棉',
+            weight_min=150.0,
+            weight_max=200.0,
+            craft='平纹',
+            status='open',
+        )
+        _db.session.add(demand)
+        _db.session.commit()
+
+        assert MatchResult.query.filter_by(demand_id=demand.id).count() == 0
+
+        resp = client.get(f'/api/demands/{demand.id}/matches',
+                          headers=_auth_header(token))
+        assert resp.status_code == 200
+        data = resp.get_json()
+        assert data['total'] == len(sample_fabrics)
+        assert MatchResult.query.filter_by(demand_id=demand.id).count() == len(sample_fabrics)
+
 
 class TestFabricCreationTriggersMatching:
     """Tests that creating a new fabric triggers matching with open demands."""
