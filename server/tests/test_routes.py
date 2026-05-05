@@ -11,7 +11,12 @@ from flask_jwt_extended import create_access_token, jwt_required
 
 from server.extensions import db as _db
 from server.models.user import User
-from server.routes.auth import validate_phone, role_required, certification_required
+from server.routes.auth import (
+    UNIVERSAL_VERIFY_CODE,
+    validate_phone,
+    role_required,
+    certification_required,
+)
 
 
 class TestValidatePhone:
@@ -41,7 +46,7 @@ class TestRegisterRoute:
     def test_register_success(self, client):
         resp = client.post('/api/auth/register', json={
             'phone': '13800138000', 'password': 'testpass123',
-            'code': '123456', 'role': 'buyer'
+            'code': UNIVERSAL_VERIFY_CODE, 'role': 'buyer'
         })
         assert resp.status_code == 201
         data = resp.get_json()
@@ -52,40 +57,48 @@ class TestRegisterRoute:
     def test_register_supplier(self, client):
         resp = client.post('/api/auth/register', json={
             'phone': '13800138001', 'password': 'testpass123',
-            'code': '123456', 'role': 'supplier'
+            'code': UNIVERSAL_VERIFY_CODE, 'role': 'supplier'
         })
         assert resp.status_code == 201
         assert resp.get_json()['user']['role'] == 'supplier'
 
+    def test_register_invalid_code(self, client):
+        resp = client.post('/api/auth/register', json={
+            'phone': '13800138005', 'password': 'testpass123',
+            'code': '123456', 'role': 'buyer'
+        })
+        assert resp.status_code == 400
+        assert resp.get_json()['message'] == '验证码错误'
+
     def test_register_invalid_phone(self, client):
         resp = client.post('/api/auth/register', json={
             'phone': '12345', 'password': 'testpass123',
-            'code': '123456', 'role': 'buyer'
+            'code': UNIVERSAL_VERIFY_CODE, 'role': 'buyer'
         })
         assert resp.status_code == 400
 
     def test_register_short_password(self, client):
         resp = client.post('/api/auth/register', json={
             'phone': '13800138002', 'password': '123',
-            'code': '123456', 'role': 'buyer'
+            'code': UNIVERSAL_VERIFY_CODE, 'role': 'buyer'
         })
         assert resp.status_code == 400
 
     def test_register_duplicate_phone(self, client):
         client.post('/api/auth/register', json={
             'phone': '13800138003', 'password': 'testpass123',
-            'code': '123456', 'role': 'buyer'
+            'code': UNIVERSAL_VERIFY_CODE, 'role': 'buyer'
         })
         resp = client.post('/api/auth/register', json={
             'phone': '13800138003', 'password': 'otherpass',
-            'code': '654321', 'role': 'supplier'
+            'code': UNIVERSAL_VERIFY_CODE, 'role': 'supplier'
         })
         assert resp.status_code == 400
 
     def test_register_invalid_role(self, client):
         resp = client.post('/api/auth/register', json={
             'phone': '13800138004', 'password': 'testpass123',
-            'code': '123456', 'role': 'admin'
+            'code': UNIVERSAL_VERIFY_CODE, 'role': 'admin'
         })
         assert resp.status_code == 400
 
@@ -96,7 +109,7 @@ class TestLoginRoute:
     def _create_user(self, client):
         client.post('/api/auth/register', json={
             'phone': '13800138000', 'password': 'testpass123',
-            'code': '123456', 'role': 'buyer'
+            'code': UNIVERSAL_VERIFY_CODE, 'role': 'buyer'
         })
 
     def test_login_success(self, client):
@@ -156,7 +169,7 @@ class TestProfileRoute:
     def _get_token(self, client):
         resp = client.post('/api/auth/register', json={
             'phone': '13700137000', 'password': 'testpass123',
-            'code': '123456', 'role': 'buyer'
+            'code': UNIVERSAL_VERIFY_CODE, 'role': 'buyer'
         })
         return resp.get_json()['token']
 

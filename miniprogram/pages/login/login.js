@@ -33,6 +33,7 @@ Page({
     regCode: '',
     regPassword: '',
     regPhoneError: '',
+    regCodeError: '',
     showRegPassword: false,
     regLoading: false,
     regRole: '', // 'buyer' | 'supplier'
@@ -69,7 +70,7 @@ Page({
    * 计算属性：是否可以注册
    */
   get canRegister() {
-    return this.data.regPhone && this.data.regCode && this.data.regPassword && this.data.regRole && !this.data.regPhoneError;
+    return this.data.regPhone && this.data.regCode && this.data.regCode.length >= 4 && this.data.regPassword && this.data.regRole && !this.data.regPhoneError && !this.data.regCodeError;
   },
 
   /**
@@ -105,7 +106,8 @@ Page({
       this.setData({
         activeTab: tab,
         phoneError: '',
-        regPhoneError: ''
+        regPhoneError: '',
+        regCodeError: ''
       });
     }
   },
@@ -190,7 +192,22 @@ Page({
   },
 
   onRegCodeInput: function (e) {
-    this.setData({ regCode: e.detail.value });
+    var value = e.detail.value;
+    var update = { regCode: value };
+    if (this.data.regCodeError && (!value || value.length >= 4)) {
+      update.regCodeError = '';
+    }
+    this.setData(update);
+    this._updateComputed();
+  },
+
+  onRegCodeBlur: function () {
+    var code = this.data.regCode;
+    if (!code) {
+      this.setData({ regCodeError: '请输入验证码' });
+    } else if (code.length < 4) {
+      this.setData({ regCodeError: '验证码至少4位' });
+    }
     this._updateComputed();
   },
 
@@ -238,7 +255,7 @@ Page({
     var data = this.data;
     this.setData({
       canLogin: !!(data.loginPhone && data.loginPassword && !data.phoneError),
-      canRegister: !!(data.regPhone && data.regCode && data.regPassword && data.regRole && !data.regPhoneError),
+      canRegister: !!(data.regPhone && data.regCode && data.regCode.length >= 4 && data.regPassword && data.regRole && !data.regPhoneError && !data.regCodeError),
       canSendCode: PHONE_REGEX.test(data.regPhone) && data.codeCountdown === 0
     });
   },
@@ -365,7 +382,9 @@ Page({
       return;
     }
     if (!code || code.length < 4) {
-      wx.showToast({ title: '请输入正确的验证码', icon: 'none' });
+      this.setData({ regCodeError: code ? '验证码至少4位' : '请输入验证码' });
+      this._updateComputed();
+      wx.showToast({ title: code ? '验证码至少4位' : '请输入验证码', icon: 'none' });
       return;
     }
     if (!password || password.length < 6) {

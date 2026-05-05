@@ -41,7 +41,7 @@
     <!-- 手机号 + 密码登录 -->
     <view class="form-group">
       <view class="input-wrap {{phoneError ? 'input-wrap-error' : ''}}">
-        <text class="input-icon">📱</text>
+        <text class="input-icon">手</text>
         <input
           class="form-input"
           type="number"
@@ -52,14 +52,14 @@
           bindinput="onLoginPhoneInput"
           bindblur="onLoginPhoneBlur"
         />
-        <text class="input-clear" wx:if="{{loginPhone}}" bindtap="clearLoginPhone">✕</text>
+        <text class="input-clear" wx:if="{{loginPhone}}" bindtap="clearLoginPhone">清</text>
       </view>
       <text class="error-text" wx:if="{{phoneError}}">{{phoneError}}</text>
     </view>
 
     <view class="form-group">
       <view class="input-wrap">
-        <text class="input-icon">🔒</text>
+        <text class="input-icon">密</text>
         <input
           class="form-input"
           type="text"
@@ -72,7 +72,7 @@
         <text
           class="input-toggle"
           bindtap="togglePasswordVisibility"
-        >{{showPassword ? '🙈' : '👁'}}</text>
+        >{{showPassword ? '隐藏' : '显示'}}</text>
       </view>
     </view>
 
@@ -116,7 +116,7 @@
   <view class="form-container slide-up" wx:if="{{activeTab === 'register'}}">
     <view class="form-group">
       <view class="input-wrap {{regPhoneError ? 'input-wrap-error' : ''}}">
-        <text class="input-icon">📱</text>
+        <text class="input-icon">手</text>
         <input
           class="form-input"
           type="number"
@@ -127,14 +127,14 @@
           bindinput="onRegPhoneInput"
           bindblur="onRegPhoneBlur"
         />
-        <text class="input-clear" wx:if="{{regPhone}}" bindtap="clearRegPhone">✕</text>
+        <text class="input-clear" wx:if="{{regPhone}}" bindtap="clearRegPhone">清</text>
       </view>
       <text class="error-text" wx:if="{{regPhoneError}}">{{regPhoneError}}</text>
     </view>
 
     <view class="form-group">
-      <view class="input-wrap code-input-wrap">
-        <text class="input-icon">✉️</text>
+      <view class="input-wrap code-input-wrap {{regCodeError ? 'input-wrap-error' : ''}}">
+        <text class="input-icon">验</text>
         <input
           class="form-input"
           type="number"
@@ -143,6 +143,7 @@
           placeholder-class="placeholder-text"
           value="{{regCode}}"
           bindinput="onRegCodeInput"
+          bindblur="onRegCodeBlur"
         />
         <view
           class="code-btn {{canSendCode ? '' : 'code-btn-disabled'}}"
@@ -151,11 +152,12 @@
           <text>{{codeCountdown > 0 ? codeCountdown + 's' : '获取验证码'}}</text>
         </view>
       </view>
+      <text class="error-text" wx:if="{{regCodeError}}">{{regCodeError}}</text>
     </view>
 
     <view class="form-group">
       <view class="input-wrap">
-        <text class="input-icon">🔒</text>
+        <text class="input-icon">密</text>
         <input
           class="form-input"
           type="text"
@@ -168,7 +170,7 @@
         <text
           class="input-toggle"
           bindtap="toggleRegPasswordVisibility"
-        >{{showRegPassword ? '🙈' : '👁'}}</text>
+        >{{showRegPassword ? '隐藏' : '显示'}}</text>
       </view>
     </view>
 
@@ -183,7 +185,7 @@
         >
           <view class="reg-role-icon buyer-bg">采</view>
           <text class="reg-role-name">采购方</text>
-          <view class="reg-role-check" wx:if="{{regRole === 'buyer'}}">✓</view>
+          <view class="reg-role-check" wx:if="{{regRole === 'buyer'}}">选</view>
         </view>
         <view
           class="reg-role-item {{regRole === 'supplier' ? 'reg-role-active' : ''}}"
@@ -192,7 +194,7 @@
         >
           <view class="reg-role-icon supplier-bg">供</view>
           <text class="reg-role-name">供应商</text>
-          <view class="reg-role-check" wx:if="{{regRole === 'supplier'}}">✓</view>
+          <view class="reg-role-check" wx:if="{{regRole === 'supplier'}}">选</view>
         </view>
       </view>
     </view>
@@ -200,7 +202,7 @@
     <button
       class="btn-submit {{regLoading ? 'btn-loading' : ''}} {{canRegister ? '' : 'btn-disabled'}}"
       bindtap="handleRegister"
-      disabled="{{!canRegister || regLoading}}"
+      disabled="{{regLoading}}"
     >
       <text wx:if="{{!regLoading}}">注 册</text>
       <view class="loading-dots" wx:else>
@@ -260,7 +262,7 @@
           </view>
           <text class="role-name">采购方</text>
           <text class="role-desc">搜索面料、发布需求、申请样品</text>
-          <view class="role-check" wx:if="{{selectedRole === 'buyer'}}">✓</view>
+          <view class="role-check" wx:if="{{selectedRole === 'buyer'}}">选</view>
         </view>
 
         <view
@@ -273,7 +275,7 @@
           </view>
           <text class="role-name">供应商</text>
           <text class="role-desc">发布面料、响应需求、处理订单</text>
-          <view class="role-check" wx:if="{{selectedRole === 'supplier'}}">✓</view>
+          <view class="role-check" wx:if="{{selectedRole === 'supplier'}}">选</view>
         </view>
       </view>
 

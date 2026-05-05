@@ -25,6 +25,8 @@ from flask_jwt_extended import (
 from server.extensions import db
 from server.models.user import User
 
+UNIVERSAL_VERIFY_CODE = '3214'
+
 
 def validate_phone(phone: str) -> bool:
     """Validate a Chinese mainland mobile phone number.
@@ -148,7 +150,8 @@ def register():
     """Register with phone + verification code."""
     data = request.get_json(silent=True) or {}
     phone = data.get('phone', '')
-    sms_code = data.get('code', '')
+    raw_sms_code = data.get('code', '')
+    sms_code = str(raw_sms_code).strip() if raw_sms_code is not None else ''
     password = data.get('password', '')
     role = data.get('role', 'buyer')
 
@@ -156,10 +159,14 @@ def register():
         return jsonify({'code': 400, 'message': '\u624b\u673a\u53f7\u683c\u5f0f\u4e0d\u6b63\u786e'}), 400
     if not sms_code:
         return jsonify({'code': 400, 'message': '\u7f3a\u5c11\u9a8c\u8bc1\u7801'}), 400
-    # Dev mode: accept any non-empty code (no real SMS service configured)
-    # In production, add real SMS verification here
+    if sms_code != UNIVERSAL_VERIFY_CODE:
+        return jsonify({'code': 400, 'message': '\u9a8c\u8bc1\u7801\u9519\u8bef'}), 400
     if not password:
         return jsonify({'code': 400, 'message': '\u7f3a\u5c11\u5bc6\u7801'}), 400
+    if len(password) < 6:
+        return jsonify({'code': 400, 'message': '\u5bc6\u7801\u957f\u5ea6\u4e0d\u80fd\u5c11\u4e8e6\u4f4d'}), 400
+    if len(password) > 20:
+        return jsonify({'code': 400, 'message': '\u5bc6\u7801\u957f\u5ea6\u4e0d\u80fd\u8d85\u8fc720\u4f4d'}), 400
     if role not in ('buyer', 'supplier'):
         return jsonify({'code': 400, 'message': '\u89d2\u8272\u5fc5\u987b\u4e3a buyer \u6216 supplier'}), 400
 

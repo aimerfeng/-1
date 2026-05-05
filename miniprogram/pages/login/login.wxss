@@ -177,10 +177,12 @@
 }
 
 .input-icon {
-  font-size: var(--font-size-lg);
+  font-size: var(--font-size-sm);
   margin-right: var(--spacing-sm);
   width: 40rpx;
   text-align: center;
+  color: var(--color-primary);
+  font-weight: var(--font-weight-bold);
 }
 
 .form-input {
@@ -205,7 +207,10 @@
 }
 
 .input-toggle {
-  font-size: var(--font-size-lg);
+  width: 72rpx;
+  text-align: center;
+  font-size: var(--font-size-xs);
+  color: var(--color-primary);
   padding: var(--spacing-xs);
 }
 
@@ -286,7 +291,6 @@
 .btn-disabled {
   background: var(--color-bg-disabled) !important;
   color: var(--color-text-placeholder) !important;
-  pointer-events: none;
 }
 
 .btn-loading {
@@ -541,7 +545,7 @@
   border-radius: 50%;
   background: var(--color-primary);
   color: #FFFFFF;
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -648,7 +652,7 @@
   border-radius: 50%;
   background: var(--color-primary);
   color: #FFFFFF;
-  font-size: var(--font-size-xs);
+  font-size: 20rpx;
   display: flex;
   align-items: center;
   justify-content: center;
