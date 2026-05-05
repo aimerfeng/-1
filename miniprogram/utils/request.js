@@ -126,6 +126,15 @@ function request(options) {
           wx.hideLoading();
         }
 
+        if (!showError) {
+          reject({
+            code: -1,
+            message: '网络连接失败',
+            error: err
+          });
+          return;
+        }
+
         // 网络失败：展示重试弹窗
         wx.showModal({
           title: '网络异常',
